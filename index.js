@@ -113,7 +113,7 @@ const onKeyUp = function (self, e) {
             emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
             argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
             argPositionElement = argPosition[emptyPos],
-            args = argPositionElement.map(e => parseFloat(values[e].value));
+            args = argPositionElement.map(e => parseFloat(values[e].value.replace(/,/g, '')));
 
         values[parseInt(emptyPos)].self.value = proportion.apply(null, args)
     }
