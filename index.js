@@ -115,10 +115,7 @@ const onKeyUp = function (self, e) {
             argPositionElement = argPosition[emptyPos],
             args = argPositionElement.map(e => parseFloat(values[e].value));
 
-        console.log(emptyPos)
-
         values[parseInt(emptyPos)].self.value = proportion.apply(null, args)
-
     }
 
 }
