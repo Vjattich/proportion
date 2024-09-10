@@ -90,6 +90,9 @@ const move = function (self, e) {
 //todo input big value foramtters
 //todo add currency at the end and block input
 //todo auto set currency on other column if it filled
+//todo ios bug toLocaleString()
+//todo remove input walking, use default tab switch
+//todo bug not autoresize after calc
 const onKeyUp = function (self, e) {
 
     let isArrowPress = [LEFT_KEY, UP_KEY, RIGHT_KEY, DOWN_KEY].indexOf(e.keyCode) !== -1;
@@ -132,7 +135,21 @@ const doFormatter = function (self) {
 
     let val = self.value.replace(/,/g, '');
 
-    self.value = parseFloat(val).toLocaleString();
+    self.value = toCurrency(val);
+}
+
+const toCurrency = function (nStr) {
+    nStr = nStr + '';
+    let x = nStr.split('.'),
+        x1 = x[0],
+        x2 = x.length > 1 ? '.' + x[1] : '',
+        rgx = /(\d+)(\d{3})/;
+
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+
+    return x1 + x2;
 }
 
 const onInput = function (self, e) {

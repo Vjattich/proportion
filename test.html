@@ -21,6 +21,13 @@
             assert.equal(proportion(7776.56, 2000000, 8000000), 1944.14);
         });
 
+        QUnit.test('toCurrency test', assert => {
+            assert.equal(toCurrency(123123), "123,123");
+            assert.equal(toCurrency(123123.123), "123,123.123");
+            assert.equal(toCurrency(3.3), "3.3");
+            assert.equal(toCurrency(50.50), "50.50");
+        });
+
         QUnit.test('isAllFilled test', assert => {
             //GIVEN
             let case1 = [{value: ''}, {value: ''}, {value: ''}, {value: 1}],
