@@ -8,6 +8,7 @@
 <div id="qunit-fixture"></div>
 <script src="https://code.jquery.com/qunit/qunit-2.20.1.js"></script>
 <script src="index.js"></script>
+<script src="big.js"></script>
 </body>
 <script>
 
@@ -21,11 +22,29 @@
             assert.equal(proportion(7776.56, 2000000, 8000000), 1944.14);
         });
 
-        QUnit.test('toCurrency test', assert => {
-            assert.equal(toCurrency(123123), "123,123");
-            assert.equal(toCurrency(123123.123), "123,123.123");
-            assert.equal(toCurrency(3.3), "3.3");
-            assert.equal(toCurrency(50.50), "50.5");
+        QUnit.test('doFormatter test', assert => {
+            //GIVEN
+            let input_1 = document.createElement("input"),
+                input_2 = document.createElement("input"),
+                input_3 = document.createElement("input"),
+                input_4 = document.createElement("input");
+
+            input_1.value = 123123;
+            input_2.value = 123123.123;
+            input_3.value = 3.3;
+            input_4.value = 50.50;
+
+            //WHEN
+            doFormatter(input_1);
+            doFormatter(input_2);
+            doFormatter(input_3);
+            doFormatter(input_4);
+
+            //THEN
+            assert.equal(input_1.value, "123,123");
+            assert.equal(input_2.value, "123,123.123");
+            assert.equal(input_3.value, "3.3");
+            assert.equal(input_4.value, "50.5");
         });
 
         QUnit.test('isAllFilled test', assert => {
@@ -38,11 +57,11 @@
             ;
 
             //WHEN
-            let result1 = isEnoughFilled(case1),
-                result2 = isEnoughFilled(case2),
-                result3 = isEnoughFilled(case3),
-                result4 = isEnoughFilled(case4),
-                result5 = isEnoughFilled(case5);
+            let result1 = hasOneUnknown(case1),
+                result2 = hasOneUnknown(case2),
+                result3 = hasOneUnknown(case3),
+                result4 = hasOneUnknown(case4),
+                result5 = hasOneUnknown(case5);
 
             //THEN
             assert.equal(result1, false);
@@ -78,72 +97,6 @@
                     '3': {self: input_3, value: 'undefined', pos: '3'}
                 }
             );
-        });
-
-        QUnit.test('geSiblings test', assert => {
-            //GIVEN
-            let input_1 = document.createElement('input'),
-                input_2 = document.createElement('input'),
-                input_3 = document.createElement('input'),
-                input_4 = document.createElement('input')
-
-            input_1.classList.add('input', '1');
-            input_1.value = '1'
-            input_2.classList.add('input', '2');
-            input_2.value = '2';
-            input_3.classList.add('input', '3');
-            input_3.value = '3';
-            input_4.classList.add('input', '4');
-            input_4.value = '4';
-
-            let main_1 = document.createElement('main_1'),
-                main_2 = document.createElement('main_2'),
-                main_3 = document.createElement('main_3');
-
-            main_1.appendChild(main_2)
-            main_1.appendChild(main_3)
-
-            main_2.appendChild(input_1);
-            main_2.appendChild(input_2);
-            main_3.appendChild(input_3);
-            main_3.appendChild(input_4);
-
-            //WHEN
-            let nextInput_1 = nextInput(input_1),
-                prevInput_1 = prevInput(input_1),
-                nextInput_2 = nextInput(input_2),
-                prevInput_2 = prevInput(input_2),
-                downInput_1 = downInput(input_1),
-                upInput_1 = upInput(input_1),
-                downInput_2 = downInput(input_2),
-                upInput_2 = upInput(input_2),
-                nextInput_3 = nextInput(input_3),
-                prevInput_3 = prevInput(input_3),
-                nextInput_4 = nextInput(input_4),
-                prevInput_4 = prevInput(input_4),
-                downInput_3 = downInput(input_3),
-                upInput_3 = upInput(input_3),
-                downInput_4 = downInput(input_4),
-                upInput_4 = upInput(input_4);
-
-            //THEN
-            assert.equal(nextInput_1.value, input_2.value);
-            assert.equal(prevInput_1, null);
-            assert.equal(nextInput_2, null);
-            assert.equal(prevInput_2.value, input_1.value);
-            assert.equal(downInput_1.value, input_3.value);
-            assert.equal(upInput_1, null);
-            assert.equal(downInput_2.value, input_4.value);
-            assert.equal(upInput_2, null);
-            assert.equal(nextInput_3.value, input_4.value);
-            assert.equal(prevInput_3, null);
-            assert.equal(nextInput_4, null);
-            assert.equal(prevInput_4.value, input_3.value);
-            assert.equal(downInput_3, null);
-            assert.equal(upInput_3.value, input_1.value);
-            assert.equal(downInput_4, null);
-            assert.equal(upInput_4.value, input_2.value);
-
         });
 
     });

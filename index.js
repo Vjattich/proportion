@@ -7,14 +7,11 @@ const DOWN_KEY = 40;
 const NUMBER_POSITION = 1;
 
 const proportion = function (a, b, c) {
-    return round2((a * b) / c)
+    const num_a = Big(a), num_b = Big(b), num_c = Big(c);
+    return num_a.mul(num_b).div(num_c).round(2);
 };
 
-const round2 = function (num) {
-    return Math.round((num + Number.EPSILON) * 100) / 100
-};
-
-const isEnoughFilled = function (elements) {
+const hasOneUnknown = function (elements) {
     let filtered = elements
         .map(e => e.value)
         .filter(e => e);
@@ -31,80 +28,14 @@ const toElement = function (elements) {
         }, {});
 };
 
-const getSibling = function (self, upOrDown, isNext) {
-
-    if (!self) {
-        return;
-    }
-
-    if (upOrDown === false) {
-        return isNext ? self.nextElementSibling : self.previousElementSibling;
-    }
-
-    let pos = parseInt(self.classList[NUMBER_POSITION]),
-        next = isNext ? pos - 2 : pos + 2,
-        inputs = Array.from(self.parentElement.parentElement.getElementsByTagName("input"));
-
-    return inputs.filter(e => parseInt(e.classList[NUMBER_POSITION]) === next)[0];
-};
-
-const nextInput = function (self) {
-    return getSibling(self, false, true);
-};
-
-const prevInput = function (self) {
-    return getSibling(self, false, false);
-};
-
-const upInput = function (self) {
-    return getSibling(self, true, true)
-};
-
-const downInput = function (self) {
-    return getSibling(self, true, false)
-};
-
-const move = function (self, e) {
-
-    let elem = self;
-
-    switch (e.keyCode) {
-        case LEFT_KEY:
-            elem = prevInput(self);
-            break;
-        case UP_KEY:
-            elem = upInput(self);
-            break;
-        case RIGHT_KEY:
-            elem = nextInput(self);
-            break;
-        case DOWN_KEY:
-            elem = downInput(self);
-            break;
-    }
-
-    (elem || self).focus();
-}
-
-//todo validate input
-//todo input big value foramtters
-//todo add currency at the end and block input
-//todo auto set currency on other column if it filled
-//todo ios bug toLocaleString()
-//todo remove input walking, use default tab switch
+//todo add currency at the end and block input and auto set currency on other column if it filled
 //todo bug not autoresize after calc
-const onKeyUp = function (self, e) {
+const onKeyUp = function (e) {
 
-    let isArrowPress = [LEFT_KEY, UP_KEY, RIGHT_KEY, DOWN_KEY].indexOf(e.keyCode) !== -1;
+    let self = this,
+        inputs = Array.from(document.getElementsByClassName('input'));
 
-    if (isArrowPress) {
-        move(self, e);
-        return;
-    }
-
-    let inputs = Array.from(document.getElementsByClassName('input'));
-
-    if (isEnoughFilled(inputs) === false) {
+    if (hasOneUnknown(inputs) === false) {
         return;
     }
 
@@ -124,10 +55,34 @@ const onKeyUp = function (self, e) {
 }
 
 const recalcWidth = function (self) {
+
+    // 91ch = 844.53
+    // 29ch = 288.48
+    // 28ch = 269.94 == 18,54
+    // 7ch = 103.13
+    // 1ch = 85.43 == 17,7
+
+    //10 = 78
+    //1 = 64 == 14
+
     self.style.width = self.value.length + "ch";
 }
 
 const doFormatter = function (self) {
+
+    const toCurrency = function (nStr) {
+        nStr = nStr + '';
+        let x = nStr.split('.'),
+            x1 = x[0],
+            x2 = x.length > 1 ? '.' + x[1] : '',
+            rgx = /(\d+)(\d{3})/;
+
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+
+        return x1 + x2;
+    }
 
     if (!self || !self.value) {
         return;
@@ -138,21 +93,27 @@ const doFormatter = function (self) {
     self.value = toCurrency(val);
 }
 
-const toCurrency = function (nStr) {
-    nStr = nStr + '';
-    let x = nStr.split('.'),
-        x1 = x[0],
-        x2 = x.length > 1 ? '.' + x[1] : '',
-        rgx = /(\d+)(\d{3})/;
+const onInput = function (e) {
+    let self = this;
 
-    while (rgx.test(x1)) {
-        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    if (isNaN(e.data)) {
+        let match = self.value.match(/\d/g) || [];
+        self.value = match.join('')
     }
 
-    return x1 + x2;
-}
-
-const onInput = function (self, e) {
     recalcWidth(self);
     doFormatter(self, e);
 };
+
+
+window.onload = function () {
+
+    let inputs = Array.from(document.getElementsByClassName('input'));
+
+    inputs.forEach(input => {
+        input.addEventListener("input", onInput)
+        input.addEventListener("keyup", onKeyUp)
+    })
+
+}
+
