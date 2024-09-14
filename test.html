@@ -53,7 +53,8 @@
                 case2 = [{value: null}, {value: null}, {value: undefined}, {value: 1}],
                 case3 = [{value: undefined}, {value: undefined}, {value: undefined}, {value: 1}],
                 case4 = [{value: 123}, {value: 123.123}, {value: 12}, {value: 123.123}],
-                case5 = [{value: '1'}, {value: '1'}, {value: '1'}, {value: '0'}]
+                case5 = [{value: '1'}, {value: '1'}, {value: '1'}, {value: '0'}],
+                case6 = [{value: '1'}, {value: '1'}, {value: '1'}, {value: null}]
             ;
 
             //WHEN
@@ -61,14 +62,16 @@
                 result2 = hasOneUnknown(case2),
                 result3 = hasOneUnknown(case3),
                 result4 = hasOneUnknown(case4),
-                result5 = hasOneUnknown(case5);
+                result5 = hasOneUnknown(case5),
+                result6 = hasOneUnknown(case6);
 
             //THEN
             assert.equal(result1, false);
             assert.equal(result2, false);
             assert.equal(result3, false);
-            assert.equal(result4, true);
-            assert.equal(result5, true);
+            assert.equal(result4, false);
+            assert.equal(result5, false);
+            assert.equal(result6, true);
         });
 
         QUnit.test('toElement test', assert => {
