@@ -16,7 +16,7 @@ const hasOneUnknown = function (elements) {
         .map(e => e.value)
         .filter(e => e);
 
-    return filtered.length >= 3;
+    return filtered.length === 3;
 }
 
 const toElement = function (elements) {
@@ -29,11 +29,9 @@ const toElement = function (elements) {
 };
 
 //todo add currency at the end and block input and auto set currency on other column if it filled
-//todo bug not autoresize after calc
 const onKeyUp = function (e) {
 
-    let self = this,
-        inputs = Array.from(document.getElementsByClassName('input'));
+    let inputs = Array.from(document.getElementsByClassName('input'));
 
     if (hasOneUnknown(inputs) === false) {
         return;
@@ -45,11 +43,13 @@ const onKeyUp = function (e) {
 
         let values = toElement(inputs),
             emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
+            unknownInput = values[parseInt(emptyPos)],
             argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
             argPositionElement = argPosition[emptyPos],
             args = argPositionElement.map(e => parseFloat(values[e].value.replace(/,/g, '')));
 
-        values[parseInt(emptyPos)].self.value = proportion.apply(null, args)
+        unknownInput.self.value = proportion.apply(null, args);
+        unknownInput.self.dispatchEvent(new Event('input'))
     }
 
 }
@@ -101,8 +101,8 @@ const onInput = function (e) {
         self.value = match.join('')
     }
 
-    recalcWidth(self);
     doFormatter(self, e);
+    recalcWidth(self);
 };
 
 
