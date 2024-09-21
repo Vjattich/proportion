@@ -96,10 +96,11 @@ const doFormatter = function (self) {
 }
 
 const onInput = function (e) {
-    let self = this;
+    let self = this,
+        char = e.data;
 
-    if (isNaN(e.data)) {
-        let match = self.value.match(/\d/g) || [];
+    if (char && (char.toUpperCase() != char.toLowerCase() || char.codePointAt(0) > 127)) {
+        let match = self.value.match(/\d\./g) || [];
         self.value = match.join('')
     }
 
