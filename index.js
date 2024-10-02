@@ -28,7 +28,6 @@ const toElement = function (elements) {
         }, {});
 };
 
-//todo tooltip for use
 //todo drag and drop event switch values event
 //todo add currency at the end and block input and auto set currency on other column if it filled
 const onKeyUp = function (e) {
@@ -108,6 +107,9 @@ const onInput = function (e) {
     recalcWidth(self);
 };
 
+const toggleGuide = function (e) {
+    document.getElementById('guide').classList.toggle("hidden");
+};
 
 window.onload = function () {
 
@@ -117,6 +119,10 @@ window.onload = function () {
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
     })
+
+    let questionMark = document.getElementsByClassName('question-mark')[0];
+
+    questionMark.addEventListener("click", toggleGuide)
 
 }
 
