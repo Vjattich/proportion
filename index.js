@@ -28,8 +28,6 @@ const toElement = function (elements) {
         }, {});
 };
 
-//todo drag and drop event switch values event
-//todo add currency at the end and block input and auto set currency on other column if it filled
 const onKeyUp = function (e) {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
