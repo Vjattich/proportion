@@ -116,6 +116,7 @@ window.onload = function () {
     inputs.forEach(input => {
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
+        input.value = null;
     })
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
