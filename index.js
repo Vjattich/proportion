@@ -28,27 +28,59 @@ const toElement = function (elements) {
         }, {});
 };
 
+
+const resolveSign = function () {
+
+
+};
+
 const onKeyUp = function (e) {
 
-    let inputs = Array.from(document.getElementsByClassName('input'));
+    try {
 
-    if (hasOneUnknown(inputs) === false) {
-        return;
-    }
+        let inputs = Array.from(document.getElementsByClassName('input'));
 
-    let isEnterPress = ENTER_KEY === e.keyCode;
+        if (hasOneUnknown(inputs) === false) {
+            return;
+        }
 
-    if (isEnterPress) {
+        let isEnterPress = ENTER_KEY === e.keyCode;
 
-        let values = toElement(inputs),
-            emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-            unknownInput = values[parseInt(emptyPos)],
-            argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-            argPositionElement = argPosition[emptyPos],
-            args = argPositionElement.map(e => parseFloat(values[e].value.replace(/,/g, '')));
+        if (isEnterPress) {
 
-        unknownInput.self.value = proportion.apply(null, args);
-        unknownInput.self.dispatchEvent(new Event('input'))
+            let values = toElement(inputs),
+                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
+                unknownInput = values[parseInt(emptyPos)],
+                argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
+                argPositionElement = argPosition[emptyPos],
+                args = argPositionElement.map(index => {
+
+                    let inputValue = values[index].value,
+                        numberStringValue = inputValue.replace(/,/g, ''),
+                        numberMatches = numberStringValue.match(/\d+/g)
+
+                    if (numberMatches.length > 1) {
+                        throw new Error("Can't make number of the 2 separate one");
+                    }
+
+                    return parseFloat(numberMatches[0]);
+                });
+
+            unknownInput.self.value = proportion.apply(null, args);
+            unknownInput.self.dispatchEvent(new Event('input'))
+        }
+
+
+    } catch (Error) {
+
+        let error = document.getElementById('tooltip-error');
+
+        if (!error.classList.contains('hidden')) {
+            return;
+        }
+
+        error.classList.toggle('hidden');
+        setTimeout(function () {error.classList.toggle('hidden')}, 1500)
     }
 
 }
