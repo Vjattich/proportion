@@ -47,6 +47,17 @@
             margin: 0.3em;
         }
 
+        .cur {
+            border: none;
+            border-bottom: 0.2em solid;
+            outline: none;
+            background: orange;
+            max-width: 3em;
+            min-height: 1em;
+            font-size: 1em;
+            margin: 0 3em 1em 3em
+        }
+
         .margin-top-15p {
             margin-top: 15%
         }
@@ -113,6 +124,10 @@
                 margin-bottom: 0.5rem;
             }
 
+            .cur {
+                margin: 0 2.2em 1em 2.2em
+            }
+
             .qr {
                 width: 40px;
                 height: 40px;
@@ -139,6 +154,7 @@
             }
 
         }
+
         @media screen and (max-height: 200px) {
 
             footer {
@@ -160,15 +176,17 @@
     <div id="main">
         <span id="tooltip-error" class="hidden">Can't process this number</span>
         <div>
+            <input class="cur 1" maxlength="5">
+            <input class="cur 2" maxlength="5">
+        </div>
+        <div>
             <input class="input 1">
             <input class="input 2">
-            <input class="cur-1">
         </div>
         <hr>
         <div>
             <input class="input 3">
             <input class="input 4">
-            <input class="cur-2">
         </div>
         <div id="guide" class="guide hidden">put values at any 3 cell and press enter; in unfilled cell will be answer of an equation</div>
     </div>
