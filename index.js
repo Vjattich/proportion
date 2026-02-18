@@ -5,6 +5,7 @@ const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
 const NUMBER_POSITION = 1;
+const FIRST_INPUT_POSITION = 1;
 const LAST_INPUT_POSITION = 4;
 let isByAction;
 
@@ -32,9 +33,10 @@ const toElement = function (elements) {
 
 const onKeyUp = function (e) {
 
-    let isNotEnterPress = ENTER_KEY !== e.keyCode;
+    let isEnterPress = ENTER_KEY === e.keyCode,
+        isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" && e.key === 'Backspace';
 
-    if (isNotEnterPress) {
+    if (false === isEnterPress && false === isBackspacePress) {
         return;
     }
 
@@ -42,30 +44,46 @@ const onKeyUp = function (e) {
 
         let inputs = Array.from(document.getElementsByClassName('input'));
 
-        if (hasOneUnknown(inputs) === false) {
+        if (!e.target.value && isBackspacePress) {
             let position = +e.target.classList[NUMBER_POSITION],
-                nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
-            inputs[nextPosition].focus();
+                prevPosition = position - 2;
+
+            if (FIRST_INPUT_POSITION === position) {
+                return;
+            }
+
+            inputs[prevPosition].focus();
             return;
         }
 
-        let values = toElement(inputs),
-            emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-            unknownInput = values[parseInt(emptyPos)],
-            argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-            argPositionElement = argPosition[emptyPos],
-            args = argPositionElement.map(index => {
+        if (hasOneUnknown(inputs) === false) {
+            if (isEnterPress) {
+                let position = +e.target.classList[NUMBER_POSITION],
+                    nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
+                inputs[nextPosition].focus();
+                return;
+            }
+        }
 
-                let inputValue = values[index].value,
-                    numberStringValue = inputValue.replace(/,/g, '');
+        if (isEnterPress) {
+            let values = toElement(inputs),
+                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
+                unknownInput = values[parseInt(emptyPos)],
+                argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
+                argPositionElement = argPosition[emptyPos],
+                args = argPositionElement.map(index => {
 
-                return parseFloat(numberStringValue);
-            });
+                    let inputValue = values[index].value,
+                        numberStringValue = inputValue.replace(/,/g, '');
 
-        isByAction = true;
-        unknownInput.self.value = toCurrency(proportion.apply(null, args));
-        unknownInput.self.dispatchEvent(new Event('input'));
-        isByAction = false;
+                    return parseFloat(numberStringValue);
+                });
+
+            isByAction = true;
+            unknownInput.self.value = toCurrency(proportion.apply(null, args));
+            unknownInput.self.dispatchEvent(new Event('input'));
+            isByAction = false;
+        }
 
     } catch (Error) {
 
@@ -154,6 +172,7 @@ const toggleGuide = function (e) {
 //todo guide
 //todo parse url to share/share button
 //todo add only number form phone input
+//todo backspase empty input backdelete
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
