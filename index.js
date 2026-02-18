@@ -7,7 +7,9 @@ const DOWN_KEY = 40;
 const NUMBER_POSITION = 1;
 const FIRST_INPUT_POSITION = 1;
 const LAST_INPUT_POSITION = 4;
+
 let isByAction;
+let inputsPrevVal = {}
 
 const proportion = function (a, b, c) {
     const num_a = Big(a), num_b = Big(b), num_c = Big(c);
@@ -33,10 +35,12 @@ const toElement = function (elements) {
 
 const onKeyUp = function (e) {
 
-    let isEnterPress = ENTER_KEY === e.keyCode,
+    let position = +e.target.classList[NUMBER_POSITION],
+        isEnterPress = ENTER_KEY === e.keyCode,
         isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" && e.key === 'Backspace';
 
     if (false === isEnterPress && false === isBackspacePress) {
+        inputsPrevVal[position] = e.target.value;
         return;
     }
 
@@ -45,10 +49,16 @@ const onKeyUp = function (e) {
         let inputs = Array.from(document.getElementsByClassName('input'));
 
         if (!e.target.value && isBackspacePress) {
-            let position = +e.target.classList[NUMBER_POSITION],
-                prevPosition = position - 2;
+
+            let prevPosition = position - 2,
+                inputsPrevValElement = inputsPrevVal[position];
 
             if (FIRST_INPUT_POSITION === position) {
+                return;
+            }
+
+            if (inputsPrevValElement) {
+                inputsPrevVal[position] = null;
                 return;
             }
 
@@ -58,7 +68,7 @@ const onKeyUp = function (e) {
 
         if (hasOneUnknown(inputs) === false) {
             if (isEnterPress) {
-                let position = +e.target.classList[NUMBER_POSITION],
+                let position = number,
                     nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
                 inputs[nextPosition].focus();
                 return;
