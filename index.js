@@ -62,7 +62,7 @@ const onKeyUp = function (e) {
             });
 
         isByAction = true;
-        unknownInput.self.value = proportion.apply(null, args);
+        unknownInput.self.value = toCurrency(proportion.apply(null, args));
         unknownInput.self.dispatchEvent(new Event('input'));
         isByAction = false;
 
@@ -96,21 +96,21 @@ const recalcWidth = function (self) {
     self.style.width = self.value.length + "ch";
 }
 
-const doFormatter = function (self) {
+const toCurrency = function (nStr) {
+    nStr = nStr + '';
+    let x = nStr.split('.'),
+        x1 = x[0],
+        x2 = x.length > 1 ? '.' + x[1] : '',
+        rgx = /(\d+)(\d{3})/;
 
-    const toCurrency = function (nStr) {
-        nStr = nStr + '';
-        let x = nStr.split('.'),
-            x1 = x[0],
-            x2 = x.length > 1 ? '.' + x[1] : '',
-            rgx = /(\d+)(\d{3})/;
-
-        while (rgx.test(x1)) {
-            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-
-        return x1 + x2;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
     }
+
+    return x1 + x2;
+}
+
+const doFormatter = function (self) {
 
     if (!self || !self.value) {
         return;
@@ -137,12 +137,13 @@ const onInput = function (e) {
 
     doFormatter(self, e);
     recalcWidth(self);
-    cleanLast()
-};
 
-const cleanLast = function () {
-    let input4 = document.getElementsByClassName("input 4")[0];
-    input4.value = null
+    let inputs = Array.from(document.getElementsByClassName("input"));
+    if (inputs.map(elem => elem.value).filter(elem => elem).length === 4) {
+        let isForth = 4 === +e.target.classList[NUMBER_POSITION];
+        //if it input on 4th input clean 3d, if if any other clean 4th
+        inputs[isForth ? 2 : 3].value = null;
+    }
 };
 
 const toggleGuide = function (e) {
