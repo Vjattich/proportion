@@ -146,6 +146,7 @@ const toggleGuide = function (e) {
 
 //todo guide
 //todo enter moving cursor to next input
+//todo add only number form phone input
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
