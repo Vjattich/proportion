@@ -145,6 +145,7 @@ const toggleGuide = function (e) {
 };
 
 //todo guide
+//todo enter moving cursor to next input
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
