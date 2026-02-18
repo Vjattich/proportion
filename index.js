@@ -5,6 +5,7 @@ const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
 const NUMBER_POSITION = 1;
+const LAST_INPUT_POSITION = 4;
 let isByAction;
 
 const proportion = function (a, b, c) {
@@ -43,7 +44,7 @@ const onKeyUp = function (e) {
 
         if (hasOneUnknown(inputs) === false) {
             let position = +e.target.classList[NUMBER_POSITION],
-                nextPosition = 4 === position ? 0 : position;
+                nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
             inputs[nextPosition].focus();
             return;
         }
@@ -139,8 +140,8 @@ const onInput = function (e) {
     recalcWidth(self);
 
     let inputs = Array.from(document.getElementsByClassName("input"));
-    if (inputs.map(elem => elem.value).filter(elem => elem).length === 4) {
-        let isForth = 4 === +e.target.classList[NUMBER_POSITION];
+    if (LAST_INPUT_POSITION === inputs.map(elem => elem.value).filter(elem => elem).length) {
+        let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
         //if it input on 4th input clean 3d, if if any other clean 4th
         inputs[isForth ? 2 : 3].value = null;
     }
