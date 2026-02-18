@@ -172,7 +172,6 @@ const toggleGuide = function (e) {
 //todo guide
 //todo parse url to share/share button
 //todo add only number form phone input
-//todo backspase empty input backdelete
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
