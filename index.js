@@ -5,6 +5,7 @@ const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
 const NUMBER_POSITION = 1;
+let isByAction;
 
 const proportion = function (a, b, c) {
     const num_a = Big(a), num_b = Big(b), num_c = Big(c);
@@ -30,25 +31,48 @@ const toElement = function (elements) {
 
 const onKeyUp = function (e) {
 
-    let inputs = Array.from(document.getElementsByClassName('input'));
+    try {
 
-    if (hasOneUnknown(inputs) === false) {
-        return;
-    }
+        let inputs = Array.from(document.getElementsByClassName('input'));
 
-    let isEnterPress = ENTER_KEY === e.keyCode;
+        if (hasOneUnknown(inputs) === false) {
+            return;
+        }
 
-    if (isEnterPress) {
+        let isEnterPress = ENTER_KEY === e.keyCode;
 
-        let values = toElement(inputs),
-            emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-            unknownInput = values[parseInt(emptyPos)],
-            argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-            argPositionElement = argPosition[emptyPos],
-            args = argPositionElement.map(e => parseFloat(values[e].value.replace(/,/g, '')));
+        if (isEnterPress) {
 
-        unknownInput.self.value = proportion.apply(null, args);
-        unknownInput.self.dispatchEvent(new Event('input'))
+            let values = toElement(inputs),
+                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
+                unknownInput = values[parseInt(emptyPos)],
+                argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
+                argPositionElement = argPosition[emptyPos],
+                args = argPositionElement.map(index => {
+
+                    let inputValue = values[index].value,
+                        numberStringValue = inputValue.replace(/,/g, '');
+
+                    return parseFloat(numberStringValue);
+                });
+
+            isByAction = true;
+            unknownInput.self.value = proportion.apply(null, args);
+            unknownInput.self.dispatchEvent(new Event('input'));
+            isByAction = false;
+        }
+
+
+    } catch (Error) {
+
+        let error = document.getElementById('tooltip-error');
+
+        if (!error.classList.contains('hidden')) {
+            return;
+        }
+
+        error.classList.toggle('hidden');
+        setTimeout(function () {error.classList.toggle('hidden')}, 1500)
     }
 
 }
@@ -93,6 +117,11 @@ const doFormatter = function (self) {
 }
 
 const onInput = function (e) {
+
+    if (isByAction) {
+        return;
+    }
+
     let self = this,
         char = e.data;
 
@@ -103,12 +132,19 @@ const onInput = function (e) {
 
     doFormatter(self, e);
     recalcWidth(self);
+    cleanLast()
+};
+
+const cleanLast = function () {
+    let input4 = document.getElementsByClassName("input 4")[0];
+    input4.value = null
 };
 
 const toggleGuide = function (e) {
     document.getElementById('guide').classList.toggle("hidden");
 };
 
+//todo guide
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
@@ -116,6 +152,7 @@ window.onload = function () {
     inputs.forEach(input => {
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
+        input.value = null;
     })
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
