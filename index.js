@@ -5,6 +5,7 @@ const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
 const NUMBER_POSITION = 1;
+const LAST_INPUT_POSITION = 4;
 let isByAction;
 
 const proportion = function (a, b, c) {
@@ -31,37 +32,40 @@ const toElement = function (elements) {
 
 const onKeyUp = function (e) {
 
+    let isNotEnterPress = ENTER_KEY !== e.keyCode;
+
+    if (isNotEnterPress) {
+        return;
+    }
+
     try {
 
         let inputs = Array.from(document.getElementsByClassName('input'));
 
         if (hasOneUnknown(inputs) === false) {
+            let position = +e.target.classList[NUMBER_POSITION],
+                nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
+            inputs[nextPosition].focus();
             return;
         }
 
-        let isEnterPress = ENTER_KEY === e.keyCode;
+        let values = toElement(inputs),
+            emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
+            unknownInput = values[parseInt(emptyPos)],
+            argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
+            argPositionElement = argPosition[emptyPos],
+            args = argPositionElement.map(index => {
 
-        if (isEnterPress) {
+                let inputValue = values[index].value,
+                    numberStringValue = inputValue.replace(/,/g, '');
 
-            let values = toElement(inputs),
-                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-                unknownInput = values[parseInt(emptyPos)],
-                argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-                argPositionElement = argPosition[emptyPos],
-                args = argPositionElement.map(index => {
+                return parseFloat(numberStringValue);
+            });
 
-                    let inputValue = values[index].value,
-                        numberStringValue = inputValue.replace(/,/g, '');
-
-                    return parseFloat(numberStringValue);
-                });
-
-            isByAction = true;
-            unknownInput.self.value = proportion.apply(null, args);
-            unknownInput.self.dispatchEvent(new Event('input'));
-            isByAction = false;
-        }
-
+        isByAction = true;
+        unknownInput.self.value = toCurrency(proportion.apply(null, args));
+        unknownInput.self.dispatchEvent(new Event('input'));
+        isByAction = false;
 
     } catch (Error) {
 
@@ -72,7 +76,9 @@ const onKeyUp = function (e) {
         }
 
         error.classList.toggle('hidden');
-        setTimeout(function () {error.classList.toggle('hidden')}, 1500)
+        setTimeout(function () {
+            error.classList.toggle('hidden')
+        }, 1500)
     }
 
 }
@@ -91,21 +97,21 @@ const recalcWidth = function (self) {
     self.style.width = self.value.length + "ch";
 }
 
-const doFormatter = function (self) {
+const toCurrency = function (nStr) {
+    nStr = nStr + '';
+    let x = nStr.split('.'),
+        x1 = x[0],
+        x2 = x.length > 1 ? '.' + x[1] : '',
+        rgx = /(\d+)(\d{3})/;
 
-    const toCurrency = function (nStr) {
-        nStr = nStr + '';
-        let x = nStr.split('.'),
-            x1 = x[0],
-            x2 = x.length > 1 ? '.' + x[1] : '',
-            rgx = /(\d+)(\d{3})/;
-
-        while (rgx.test(x1)) {
-            x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-
-        return x1 + x2;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
     }
+
+    return x1 + x2;
+}
+
+const doFormatter = function (self) {
 
     if (!self || !self.value) {
         return;
@@ -132,12 +138,13 @@ const onInput = function (e) {
 
     doFormatter(self, e);
     recalcWidth(self);
-    cleanLast()
-};
 
-const cleanLast = function () {
-    let input4 = document.getElementsByClassName("input 4")[0];
-    input4.value = null
+    let inputs = Array.from(document.getElementsByClassName("input"));
+    if (LAST_INPUT_POSITION === inputs.map(elem => elem.value).filter(elem => elem).length) {
+        let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
+        //if it input on 4th input clean 3d, if if any other clean 4th
+        inputs[isForth ? 2 : 3].value = null;
+    }
 };
 
 const toggleGuide = function (e) {
@@ -145,18 +152,38 @@ const toggleGuide = function (e) {
 };
 
 //todo guide
+//todo parse url to share/share button
+//todo add only number form phone input
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
 
     inputs.forEach(input => {
+        input.value = null;
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
-        input.value = null;
     })
 
-    Array.from(document.getElementsByClassName('cur')).forEach(input => {
+    let curencyInputs = document.getElementsByClassName('cur');
+    Array.from(curencyInputs).forEach(input => {
         input.value = null;
+        input.addEventListener("keyup", function (e) {
+            let isNotEnterPress = ENTER_KEY !== e.keyCode;
+
+            if (isNotEnterPress) {
+                return;
+            }
+
+            let position = +e.target.classList[NUMBER_POSITION];
+
+            if (2 === position) {
+                inputs[0].focus();
+            } else {
+                //pos - 1 is array defenition of position. So 1 is next
+                curencyInputs[position].focus();
+            }
+
+        });
     });
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
