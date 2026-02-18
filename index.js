@@ -68,8 +68,7 @@ const onKeyUp = function (e) {
 
         if (hasOneUnknown(inputs) === false) {
             if (isEnterPress) {
-                let position = number,
-                    nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
+                let nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
                 inputs[nextPosition].focus();
                 return;
             }
@@ -192,8 +191,8 @@ window.onload = function () {
         input.addEventListener("keyup", onKeyUp)
     })
 
-    let curencyInputs = document.getElementsByClassName('cur');
-    Array.from(curencyInputs).forEach(input => {
+    let currencyInputs = document.getElementsByClassName('cur');
+    Array.from(currencyInputs).forEach(input => {
         input.value = null;
         input.addEventListener("keyup", function (e) {
             let isNotEnterPress = ENTER_KEY !== e.keyCode;
@@ -208,7 +207,7 @@ window.onload = function () {
                 inputs[0].focus();
             } else {
                 //pos - 1 is array defenition of position. So 1 is next
-                curencyInputs[position].focus();
+                currencyInputs[position].focus();
             }
 
         });
