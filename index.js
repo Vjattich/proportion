@@ -31,37 +31,40 @@ const toElement = function (elements) {
 
 const onKeyUp = function (e) {
 
+    let isNotEnterPress = ENTER_KEY !== e.keyCode;
+
+    if (isNotEnterPress) {
+        return;
+    }
+
     try {
 
         let inputs = Array.from(document.getElementsByClassName('input'));
 
         if (hasOneUnknown(inputs) === false) {
+            let position = +e.target.classList[NUMBER_POSITION],
+                nextPosition = 4 === position ? 0 : position;
+            inputs[nextPosition].focus();
             return;
         }
 
-        let isEnterPress = ENTER_KEY === e.keyCode;
+        let values = toElement(inputs),
+            emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
+            unknownInput = values[parseInt(emptyPos)],
+            argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
+            argPositionElement = argPosition[emptyPos],
+            args = argPositionElement.map(index => {
 
-        if (isEnterPress) {
+                let inputValue = values[index].value,
+                    numberStringValue = inputValue.replace(/,/g, '');
 
-            let values = toElement(inputs),
-                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-                unknownInput = values[parseInt(emptyPos)],
-                argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-                argPositionElement = argPosition[emptyPos],
-                args = argPositionElement.map(index => {
+                return parseFloat(numberStringValue);
+            });
 
-                    let inputValue = values[index].value,
-                        numberStringValue = inputValue.replace(/,/g, '');
-
-                    return parseFloat(numberStringValue);
-                });
-
-            isByAction = true;
-            unknownInput.self.value = proportion.apply(null, args);
-            unknownInput.self.dispatchEvent(new Event('input'));
-            isByAction = false;
-        }
-
+        isByAction = true;
+        unknownInput.self.value = proportion.apply(null, args);
+        unknownInput.self.dispatchEvent(new Event('input'));
+        isByAction = false;
 
     } catch (Error) {
 
@@ -72,7 +75,9 @@ const onKeyUp = function (e) {
         }
 
         error.classList.toggle('hidden');
-        setTimeout(function () {error.classList.toggle('hidden')}, 1500)
+        setTimeout(function () {
+            error.classList.toggle('hidden')
+        }, 1500)
     }
 
 }
@@ -145,20 +150,38 @@ const toggleGuide = function (e) {
 };
 
 //todo guide
-//todo enter moving cursor to next input
+//todo parse url to share/share button
 //todo add only number form phone input
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
 
     inputs.forEach(input => {
+        input.value = null;
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
-        input.value = null;
     })
 
-    Array.from(document.getElementsByClassName('cur')).forEach(input => {
+    let curencyInputs = document.getElementsByClassName('cur');
+    Array.from(curencyInputs).forEach(input => {
         input.value = null;
+        input.addEventListener("keyup", function (e) {
+            let isNotEnterPress = ENTER_KEY !== e.keyCode;
+
+            if (isNotEnterPress) {
+                return;
+            }
+
+            let position = +e.target.classList[NUMBER_POSITION];
+
+            if (2 === position) {
+                inputs[0].focus();
+            } else {
+                //pos - 1 is array defenition of position. So 1 is next
+                curencyInputs[position].focus();
+            }
+
+        });
     });
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
