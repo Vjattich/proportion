@@ -155,6 +155,10 @@ window.onload = function () {
         input.value = null;
     })
 
+    Array.from(document.getElementsByClassName('cur')).forEach(input => {
+        input.value = null;
+    });
+
     let questionMark = document.getElementsByClassName('question-mark')[0];
 
     questionMark.addEventListener("click", toggleGuide)
