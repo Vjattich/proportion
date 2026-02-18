@@ -144,6 +144,7 @@ const toggleGuide = function (e) {
     document.getElementById('guide').classList.toggle("hidden");
 };
 
+//todo guide
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
