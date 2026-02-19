@@ -178,9 +178,8 @@ const toggleGuide = function (e) {
     document.getElementById('guide').classList.toggle("hidden");
 };
 
-//todo guide
+//todo cute guide
 //todo parse url to share/share button
-//todo add only number form phone input
 window.onload = function () {
 
     let inputs = Array.from(document.getElementsByClassName('input'));
