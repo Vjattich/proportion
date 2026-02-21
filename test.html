@@ -22,31 +22,6 @@
             assert.equal(proportion(7776.56, 2000000, 8000000), 1944.14);
         });
 
-        QUnit.test('doFormatter test', assert => {
-            //GIVEN
-            let input_1 = document.createElement("input"),
-                input_2 = document.createElement("input"),
-                input_3 = document.createElement("input"),
-                input_4 = document.createElement("input");
-
-            input_1.value = 123123;
-            input_2.value = 123123.123;
-            input_3.value = 3.3;
-            input_4.value = 50.50;
-
-            //WHEN
-            doFormatter(input_1);
-            doFormatter(input_2);
-            doFormatter(input_3);
-            doFormatter(input_4);
-
-            //THEN
-            assert.equal(input_1.value, "123,123");
-            assert.equal(input_2.value, "123,123.123");
-            assert.equal(input_3.value, "3.3");
-            assert.equal(input_4.value, "50.5");
-        });
-
         QUnit.test('isAllFilled test', assert => {
             //GIVEN
             let case1 = [{value: ''}, {value: ''}, {value: ''}, {value: 1}],
@@ -181,6 +156,68 @@
             assert.equal('input_1', focusCalledBy)
 
         });
+
+        QUnit.test('onInput test. Return on false inputs', assert => {
+
+            //GIVEN
+            let input_1 = document.createElement('input');
+
+            isByAction = true;
+
+            //WHEN
+            onInput.bind(input_1, {keyCode: 1, target: {classList: ['input', '1']}})();
+
+            //THEN
+            assert.equal(input_1.value, '')
+        });
+
+        QUnit.test('onInput test. redo the inputted number', assert => {
+
+            //GIVEN
+            let input_1 = document.createElement('input'),
+                input_2 = document.createElement('input');
+
+            input_1.value = '123.33r'
+            input_2.value = '123,123.33r'
+
+            isByAction = false;
+
+            //WHEN
+            onInput.bind(input_1, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_2, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+
+            //THEN
+            assert.equal(input_1.value, '123.33')
+            assert.equal(input_2.value, '123,123.33')
+        });
+
+        QUnit.test('onInput test. Put formatted value', assert => {
+            //GIVEN
+            let input_1 = document.createElement("input"),
+                input_2 = document.createElement("input"),
+                input_3 = document.createElement("input"),
+                input_4 = document.createElement("input");
+
+            isByAction = false;
+
+            input_1.value = '123,123';
+            input_2.value = '123,123.123';
+            input_3.value = '3.3';
+            input_4.value = '50.5';
+
+            //WHEN
+            onInput.bind(input_1, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_2, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_3, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_4, {data: '5', keyCode: 1, target: {classList: ['input', '1']}})();
+
+            //THEN
+            assert.equal(input_1.value, "123,123");
+            assert.equal(input_2.value, "123,123.123");
+            assert.equal(input_3.value, "3.3");
+            assert.equal(input_4.value, "50.5");
+        })
+
     });
 
 </script>

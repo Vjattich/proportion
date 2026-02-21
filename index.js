@@ -138,17 +138,6 @@ const toCurrency = function (nStr) {
     return x1 + x2;
 }
 
-const doFormatter = function (self) {
-
-    if (!self || !self.value) {
-        return;
-    }
-
-    let val = self.value.replace(/,/g, '');
-
-    self.value = toCurrency(val);
-}
-
 const onInput = function (e) {
 
     if (isByAction) {
@@ -159,11 +148,11 @@ const onInput = function (e) {
         char = e.data;
 
     if (char && (char.toUpperCase() != char.toLowerCase() || char.codePointAt(0) > 127)) {
-        let match = self.value.match(/\d\./g) || [];
-        self.value = match.join('')
+        let match = self.value.match(/\d+\,?\d+\.\d+/g) || [];
+        self.value = toCurrency(match[0]);
     }
 
-    doFormatter(self, e);
+    self.value = toCurrency(self.value.replace(/,/g, ''));
     recalcWidth(self);
 
     let inputs = Array.from(document.getElementsByClassName("input"));
