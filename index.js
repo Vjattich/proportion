@@ -152,6 +152,7 @@ const onInput = function (e) {
     let self = this,
         char = e.data;
 
+    //if its a letter, remove it
     if (char && (char.toUpperCase() != char.toLowerCase() || char.codePointAt(0) > 127)) {
         let match = self.value.match(/\d+,?\d+\.\d+/g);
         self.value = toCurrency(match && match[0] || null);
