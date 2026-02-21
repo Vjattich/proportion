@@ -153,7 +153,6 @@ const cleanInputIfNeeded = function (e) {
         return;
     }
 
-    debugger
     //if current filled input is the last one we will clean the third. If its any other we will clean the last
     let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
     inputs[isForth ? 2 : 3].value = null;
