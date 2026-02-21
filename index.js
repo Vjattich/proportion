@@ -38,7 +38,7 @@ const onKeyUp = function (e) {
 
     let position = +e.target.classList[NUMBER_POSITION],
         isEnterPress = ENTER_KEY === e.keyCode,
-            isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" && e.key === 'Backspace';
+        isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" || e.key === 'Backspace';
 
     if (false === isEnterPress && false === isBackspacePress) {
         inputsPrevVal[position] = e.target.value;
@@ -54,10 +54,13 @@ const onKeyUp = function (e) {
             let prevPosition = position - 2,
                 inputsPrevValElement = inputsPrevVal[position];
 
+            //if backspace was pressed to delete everything, it should stop on first input
             if (FIRST_INPUT_POSITION === position) {
                 return;
             }
 
+            //if we do not save state backspace after cleaning all input jump to previous one to fast. Maybe user delete from current to fill it again
+            //so we save a state. If its empty it means user want to delete more
             if (inputsPrevValElement) {
                 inputsPrevVal[position] = null;
                 return;
