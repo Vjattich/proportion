@@ -125,6 +125,11 @@ const recalcWidth = function (self) {
 }
 
 const toCurrency = function (nStr) {
+
+    if (!nStr) {
+        return null;
+    }
+
     nStr = nStr + '';
     let x = nStr.split('.'),
         x1 = x[0],
@@ -148,7 +153,7 @@ const onInput = function (e) {
         char = e.data;
 
     if (char && (char.toUpperCase() != char.toLowerCase() || char.codePointAt(0) > 127)) {
-        let match = self.value.match(/\d+,?\d+\.\d+/g) || [];
+        let match = self.value.match(/\d+,?\d+\.\d+/g);
         self.value = toCurrency(match[0]);
     }
 
