@@ -175,20 +175,24 @@
 
             //GIVEN
             let input_1 = document.createElement('input'),
-                input_2 = document.createElement('input');
+                input_2 = document.createElement('input'),
+                input_3 = document.createElement('input')
 
             input_1.value = '123.33r'
             input_2.value = '123,123.33r'
+            input_3.value = 'r'
 
             isByAction = false;
 
             //WHEN
             onInput.bind(input_1, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
             onInput.bind(input_2, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_3, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
 
             //THEN
             assert.equal(input_1.value, '123.33')
             assert.equal(input_2.value, '123,123.33')
+            assert.equal(input_3.value, '')
         });
 
         QUnit.test('onInput test. Put formatted value', assert => {

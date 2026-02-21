@@ -154,7 +154,7 @@ const onInput = function (e) {
 
     if (char && (char.toUpperCase() != char.toLowerCase() || char.codePointAt(0) > 127)) {
         let match = self.value.match(/\d+,?\d+\.\d+/g);
-        self.value = toCurrency(match[0]);
+        self.value = toCurrency(match && match[0] || null);
     }
 
     self.value = toCurrency(self.value.replace(/,/g, ''));
