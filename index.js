@@ -6,6 +6,7 @@ const DOWN_KEY = 40;
 
 const NUMBER_POSITION = 1;
 const FIRST_INPUT_POSITION = 1;
+const INPUT_COUNT = 4;
 const LAST_INPUT_POSITION = 4;
 
 let isByAction;
@@ -37,7 +38,7 @@ const onKeyUp = function (e) {
 
     let position = +e.target.classList[NUMBER_POSITION],
         isEnterPress = ENTER_KEY === e.keyCode,
-        isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" && e.key === 'Backspace';
+        isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" || e.key === 'Backspace';
 
     if (false === isEnterPress && false === isBackspacePress) {
         inputsPrevVal[position] = e.target.value;
@@ -53,10 +54,13 @@ const onKeyUp = function (e) {
             let prevPosition = position - 2,
                 inputsPrevValElement = inputsPrevVal[position];
 
+            //if backspace was pressed to delete everything, it should stop on first input
             if (FIRST_INPUT_POSITION === position) {
                 return;
             }
 
+            //if we do not save state backspace after cleaning all input jump to previous one to fast. Maybe user delete from current to fill it again
+            //so we save a state. If its empty it means user want to delete more
             if (inputsPrevValElement) {
                 inputsPrevVal[position] = null;
                 return;
@@ -125,6 +129,11 @@ const recalcWidth = function (self) {
 }
 
 const toCurrency = function (nStr) {
+
+    if (!nStr) {
+        return null;
+    }
+
     nStr = nStr + '';
     let x = nStr.split('.'),
         x1 = x[0],
@@ -138,15 +147,18 @@ const toCurrency = function (nStr) {
     return x1 + x2;
 }
 
-const doFormatter = function (self) {
+const cleanInputIfNeeded = function (e) {
 
-    if (!self || !self.value) {
+    let inputs = Array.from(document.getElementsByClassName("input"));
+
+    //if all inputs are filled
+    if (INPUT_COUNT !== inputs.map(elem => elem.value).filter(elem => elem).length) {
         return;
     }
 
-    let val = self.value.replace(/,/g, '');
-
-    self.value = toCurrency(val);
+    //if current filled input is the last one we will clean the third. If its any other we will clean the last
+    let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
+    inputs[isForth ? 2 : 3].value = null;
 }
 
 const onInput = function (e) {
@@ -158,24 +170,44 @@ const onInput = function (e) {
     let self = this,
         char = e.data;
 
+    //if its a letter, remove it
     if (char && (char.toUpperCase() != char.toLowerCase() || char.codePointAt(0) > 127)) {
-        let match = self.value.match(/\d\./g) || [];
-        self.value = match.join('')
+
+        if (self.value.indexOf(',') !== -1) {
+            self.value = self.value.replaceAll(',', '')
+        }
+
+        let match = self.value.match(/\d+(\.\d+)?/g);
+        self.value = toCurrency(match && match[0] || null);
+        return;
     }
 
-    doFormatter(self, e);
+    self.value = toCurrency(self.value.replace(/,/g, ''));
     recalcWidth(self);
 
-    let inputs = Array.from(document.getElementsByClassName("input"));
-    if (LAST_INPUT_POSITION === inputs.map(elem => elem.value).filter(elem => elem).length) {
-        let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
-        //if it input on 4th input clean 3d, if if any other clean 4th
-        inputs[isForth ? 2 : 3].value = null;
-    }
+    cleanInputIfNeeded(e);
 };
 
 const toggleGuide = function (e) {
     document.getElementById('guide').classList.toggle("hidden");
+};
+
+const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
+
+    let isNotEnterPress = ENTER_KEY !== e.keyCode;
+
+    if (isNotEnterPress) {
+        return;
+    }
+
+    let position = +e.target.classList[NUMBER_POSITION];
+
+    if (2 === position) {
+        numberInputs[0].focus();
+    } else {
+        //pos - 1 is array defenition of position. So 1 is next
+        currencyInputs[position].focus();
+    }
 };
 
 //todo cute guide
@@ -193,28 +225,14 @@ window.onload = function () {
     let currencyInputs = document.getElementsByClassName('cur');
     Array.from(currencyInputs).forEach(input => {
         input.value = null;
-        input.addEventListener("keyup", function (e) {
-            let isNotEnterPress = ENTER_KEY !== e.keyCode;
-
-            if (isNotEnterPress) {
-                return;
-            }
-
-            let position = +e.target.classList[NUMBER_POSITION];
-
-            if (2 === position) {
-                inputs[0].focus();
-            } else {
-                //pos - 1 is array defenition of position. So 1 is next
-                currencyInputs[position].focus();
-            }
-
-        });
+        input.addEventListener("keyup", e => onCurrencyKeyup(e, inputs, currencyInputs));
     });
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
 
-    questionMark.addEventListener("click", toggleGuide)
+    if (questionMark) {
+        questionMark.addEventListener("click", toggleGuide);
+    }
 
 }
 

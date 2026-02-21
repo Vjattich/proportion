@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Test Suite</title>
-<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.1.css">
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.25.0.css">
 <body>
 
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
-<script src="https://code.jquery.com/qunit/qunit-2.20.1.js"></script>
+<script src="https://code.jquery.com/qunit/qunit-2.25.0.js"></script>
 <script src="index.js"></script>
 <script src="big.js"></script>
 </body>
@@ -20,31 +20,6 @@
 
         QUnit.test('proportion case 2', assert => {
             assert.equal(proportion(7776.56, 2000000, 8000000), 1944.14);
-        });
-
-        QUnit.test('doFormatter test', assert => {
-            //GIVEN
-            let input_1 = document.createElement("input"),
-                input_2 = document.createElement("input"),
-                input_3 = document.createElement("input"),
-                input_4 = document.createElement("input");
-
-            input_1.value = 123123;
-            input_2.value = 123123.123;
-            input_3.value = 3.3;
-            input_4.value = 50.50;
-
-            //WHEN
-            doFormatter(input_1);
-            doFormatter(input_2);
-            doFormatter(input_3);
-            doFormatter(input_4);
-
-            //THEN
-            assert.equal(input_1.value, "123,123");
-            assert.equal(input_2.value, "123,123.123");
-            assert.equal(input_3.value, "3.3");
-            assert.equal(input_4.value, "50.5");
         });
 
         QUnit.test('isAllFilled test', assert => {
@@ -101,6 +76,449 @@
                 }
             );
         });
+
+        QUnit.test('currencyOnKeyUp test. Pass NOT enter key', assert => {
+
+            //GIVEN
+            let currencyInput_1 = document.createElement('input'),
+                currencyInput_2 = document.createElement('input'),
+                input_1 = document.createElement('input');
+
+            let focusCalledBy = false;
+            input_1.focus = function () {
+                focusCalledBy = 'input_1';
+            };
+            currencyInput_1.focus = function () {
+                focusCalledBy = 'currencyInput_1';
+            };
+            currencyInput_2.focus = function () {
+                focusCalledBy = 'currencyInput_2';
+            };
+
+            //WHEN
+            let e = {keyCode: 1, target: {classList: ['cur', '1']}};
+            onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_1])
+
+            //THEN
+            assert.false(focusCalledBy)
+        });
+
+        QUnit.test('currencyOnKeyUp test. Pass enter key', assert => {
+
+            //GIVEN
+            let currencyInput_1 = document.createElement('input'),
+                currencyInput_2 = document.createElement('input'),
+                input_1 = document.createElement('input');
+
+            let focusCalledBy = false;
+            input_1.focus = function () {
+                focusCalledBy = 'input_1';
+            };
+            currencyInput_1.focus = function () {
+                focusCalledBy = 'currencyInput_1';
+            };
+            currencyInput_2.focus = function () {
+                focusCalledBy = 'currencyInput_2';
+            };
+
+            //WHEN
+            let e = {keyCode: 13, target: {classList: ['cur', '1']}};
+            onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_2])
+
+            //THEN
+            assert.equal('currencyInput_2', focusCalledBy)
+
+        });
+
+        QUnit.test('currencyOnKeyUp test. Pass enter key on last currency input', assert => {
+
+            //GIVEN
+            let currencyInput_1 = document.createElement('input'),
+                currencyInput_2 = document.createElement('input'),
+                input_1 = document.createElement('input');
+
+            let focusCalledBy = false;
+            input_1.focus = function () {
+                focusCalledBy = 'input_1';
+            };
+            currencyInput_1.focus = function () {
+                focusCalledBy = 'currencyInput_1';
+            };
+            currencyInput_2.focus = function () {
+                focusCalledBy = 'currencyInput_2';
+            };
+
+            //WHEN
+            let e = {keyCode: 13, target: {classList: ['cur', '2']}};
+            onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_2])
+
+            //THEN
+            assert.equal('input_1', focusCalledBy)
+
+        });
+
+        QUnit.test('onInput test. Return on false inputs', assert => {
+            //GIVEN
+            isByAction = true;
+
+            let input_1 = document.createElement('input');
+
+            //WHEN
+            onInput.bind(input_1, {keyCode: 1, target: {classList: ['input', '1']}})();
+
+            //THEN
+            assert.equal(input_1.value, '')
+        });
+
+        QUnit.test('onInput test. redo the inputted number', assert => {
+            //GIVEN
+            isByAction = false;
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+
+            input_1.value = '123.33r'
+            input_2.value = '123,123.33r'
+            input_3.value = 'r'
+            input_4.value = '2r'
+
+            //WHEN
+            onInput.bind(input_1, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_2, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_3, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_4, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+
+            //THEN
+            assert.equal(input_1.value, '123.33')
+            assert.equal(input_2.value, '123,123.33')
+            assert.equal(input_3.value, '')
+            assert.equal(input_4.value, 2)
+        });
+
+        QUnit.test('onInput test. Put formatted value', assert => {
+            //GIVEN
+            isByAction = false;
+
+            let input_1 = document.createElement("input");
+            let input_2 = document.createElement("input");
+            let input_3 = document.createElement("input");
+            let input_4 = document.createElement("input");
+
+            input_1.value = '123,123';
+            input_2.value = '123,123.123';
+            input_3.value = '3.3';
+            input_4.value = '50.5';
+
+            //WHEN
+            onInput.bind(input_1, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_2, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_3, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.bind(input_4, {data: '5', keyCode: 1, target: {classList: ['input', '1']}})();
+
+            //THEN
+            assert.equal(input_1.value, "123,123");
+            assert.equal(input_2.value, "123,123.123");
+            assert.equal(input_3.value, "3.3");
+            assert.equal(input_4.value, "50.5");
+        })
+
+        QUnit.test('onInput test. Clean inputs by refilling input 1', assert => {
+            //GIVEN
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            isByAction = false;
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            input_1.value = '123,123';
+            input_2.value = '123,123.123';
+            input_3.value = '3.3';
+            input_4.value = '50.5';
+
+            //WHEN
+            onInput.bind(input_1, {key: 'Backspace', keyCode: 1, target: {classList: input_1.classList}})();
+
+            //THEN
+            assert.equal(input_1.value, '123,123');
+            assert.equal(input_2.value, '123,123.123');
+            assert.equal(input_3.value, '3.3');
+            assert.equal(input_4.value, '');
+        });
+
+        QUnit.test('onInput test. Clean inputs by refilling input 1', assert => {
+            //GIVEN
+
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            isByAction = false;
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            input_1.value = '123,123';
+            input_2.value = '123,123.123';
+            input_3.value = '3.3';
+            input_4.value = '50.5';
+
+            //WHEN
+            onInput.bind(input_4, {key: 'Backspace', keyCode: 1, target: {classList: input_4.classList}})();
+
+            //THEN
+            assert.equal(input_1.value, '123,123');
+            assert.equal(input_2.value, '123,123.123');
+            assert.equal(input_3.value, '');
+            assert.equal(input_4.value, '50.5');
+        });
+
+        QUnit.test('onKeyUp test. Not calculating action; return and fill state', assert => {
+            //GIVEN
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            inputsPrevVal = {};
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            input_1.value = '123,123';
+            input_2.value = '123,123.123';
+            input_3.value = '3.3';
+            input_4.value = null;
+
+            //WHEN
+            onKeyUp.bind(input_3, {key: '3', keyCode: 1, target: {value: input_3.value, classList: input_3.classList}})();
+
+            //THEN
+            assert.deepEqual(inputsPrevVal, {'3': '3.3'});
+            assert.equal(input_1.value, '123,123');
+            assert.equal(input_2.value, '123,123.123');
+            assert.equal(input_3.value, '3.3');
+            assert.equal(input_4.value, '');
+        });
+
+        QUnit.test('onKeyUp test. Backspace press on inputs; should change focus', assert => {
+            //GIVEN
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            inputsPrevVal = {};
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            let input_focus = false;
+            input_1.value = '123,123';
+            input_1.focus = function () {
+                input_focus = 'input_1';
+            };
+            input_2.value = '123,123.123';
+            input_2.focus = function () {
+                input_focus = 'input_2';
+            };
+            input_3.value = '3.3';
+            input_3.focus = function () {
+                input_focus = 'input_3';
+            };
+            input_4.value = null;
+            input_4.focus = function () {
+                input_focus = 'input_4';
+            };
+
+            //WHEN
+            onKeyUp.bind(input_4, {key: 'Backspace', keyCode: 1, target: {value: input_4.value, classList: input_4.classList}})();
+
+            //THEN
+            assert.deepEqual(inputsPrevVal, {});
+            assert.equal(input_1.value, '123,123');
+            assert.equal(input_2.value, '123,123.123');
+            assert.equal(input_3.value, '3.3');
+            assert.equal(input_4.value, '');
+            assert.equal(input_focus, 'input_3');
+        });
+
+
+        QUnit.test('onKeyUp test. Backspace press on inputs; do not change focus on the first one', assert => {
+            //GIVEN
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            inputsPrevVal = {};
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            let input_focus = false;
+            input_1.value = '123,123';
+            input_1.focus = function () {
+                input_focus = 'input_1';
+            };
+            input_2.value = '123,123.123';
+            input_2.focus = function () {
+                input_focus = 'input_2';
+            };
+            input_3.value = '3.3';
+            input_3.focus = function () {
+                input_focus = 'input_3';
+            };
+            input_4.value = null;
+            input_4.focus = function () {
+                input_focus = 'input_4';
+            };
+
+            //WHEN
+            onKeyUp.bind(input_1, {key: 'Backspace', keyCode: 1, target: {value: input_1.value, classList: input_1.classList}})();
+
+            //THEN
+            assert.deepEqual(inputsPrevVal, {});
+            assert.equal(input_1.value, '123,123');
+            assert.equal(input_2.value, '123,123.123');
+            assert.equal(input_3.value, '3.3');
+            assert.equal(input_4.value, '');
+            assert.equal(input_focus, false);
+        });
+
+
+        QUnit.test('onKeyUp test. Enter press on inputs; while inputs are empty', assert => {
+            //GIVEN
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            inputsPrevVal = {};
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            let input_focus = false;
+            input_1.value = '11';
+            input_1.focus = function () {
+                input_focus = 'input_1';
+            };
+            input_2.value = null;
+            input_2.focus = function () {
+                input_focus = 'input_2';
+            };
+            input_3.value = null;
+            input_3.focus = function () {
+                input_focus = 'input_3';
+            };
+            input_4.value = null;
+            input_4.focus = function () {
+                input_focus = 'input_4';
+            };
+
+            //WHEN
+            onKeyUp.bind(input_1, {key: 'Enter', keyCode: 13, target: {value: input_1.value, classList: input_1.classList}})();
+
+            //THEN
+            assert.deepEqual(inputsPrevVal, {});
+            assert.equal(input_1.value, '11');
+            assert.equal(input_2.value, '');
+            assert.equal(input_3.value, '');
+            assert.equal(input_4.value, '');
+            assert.equal(input_focus, 'input_2');
+        })
+
+        QUnit.test('onKeyUp test. Enter press on inputs; while inputs 3 inputs filled', assert => {
+            //GIVEN
+            let qunit_fixture = document.getElementById('qunit-fixture');
+
+            inputsPrevVal = {};
+
+            let input_1 = document.createElement('input');
+            let input_2 = document.createElement('input');
+            let input_3 = document.createElement('input');
+            let input_4 = document.createElement('input');
+            let htmlInputElements = [input_1, input_2, input_3, input_4];
+
+            for (let i = 0; i < htmlInputElements.length; i++) {
+                const htmlInputElement = htmlInputElements[i];
+                htmlInputElement.classList.add('input', i + 1)
+                qunit_fixture.appendChild(htmlInputElement)
+            }
+
+            let input_focus = false;
+            input_1.value = '11';
+            input_1.focus = function () {
+                input_focus = 'input_1';
+            };
+            input_2.value = '1111';
+            input_2.focus = function () {
+                input_focus = 'input_2';
+            };
+            input_3.value = '1';
+            input_3.focus = function () {
+                input_focus = 'input_3';
+            };
+            input_4.value = null;
+            input_4.focus = function () {
+                input_focus = 'input_4';
+            };
+
+            //WHEN
+            onKeyUp.bind(input_3, {key: 'Enter', keyCode: 13, target: {value: input_3.value, classList: input_3.classList}})();
+
+            //THEN
+            assert.deepEqual(inputsPrevVal, {});
+            assert.equal(input_1.value, '11');
+            assert.equal(input_2.value, '1111');
+            assert.equal(input_3.value, '1');
+            assert.equal(input_4.value, '101');
+            assert.equal(input_focus, false);
+        })
+
 
     });
 
