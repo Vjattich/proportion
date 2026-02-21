@@ -173,6 +173,7 @@ const onInput = function (e) {
         if (self.value.indexOf(',') !== -1) {
             self.value = self.value.replaceAll(',', '')
         }
+
         let match = self.value.match(/\d+(\.\d+)?/g);
         self.value = toCurrency(match && match[0] || null);
         return;
