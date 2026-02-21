@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>Test Suite</title>
-<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.20.1.css">
+<link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.25.0.css">
 <body>
 
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
-<script src="https://code.jquery.com/qunit/qunit-2.20.1.js"></script>
+<script src="https://code.jquery.com/qunit/qunit-2.25.0.js"></script>
 <script src="index.js"></script>
 <script src="big.js"></script>
 </body>
@@ -102,6 +102,85 @@
             );
         });
 
+        QUnit.test('currencyOnKeyUp test. Pass NOT enter key', assert => {
+
+            //GIVEN
+            let currencyInput_1 = document.createElement('input'),
+                currencyInput_2 = document.createElement('input'),
+                input_1 = document.createElement('input');
+
+            let focusCalledBy = false;
+            input_1.focus = function () {
+                focusCalledBy = 'input_1';
+            };
+            currencyInput_1.focus = function () {
+                focusCalledBy = 'currencyInput_1';
+            };
+            currencyInput_2.focus = function () {
+                focusCalledBy = 'currencyInput_2';
+            };
+
+            //WHEN
+            let e = {keyCode: 1, target: {classList: ['cur', '1']}};
+            onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_1])
+
+            //THEN
+            assert.false(focusCalledBy)
+        });
+
+        QUnit.test('currencyOnKeyUp test. Pass enter key', assert => {
+
+            //GIVEN
+            let currencyInput_1 = document.createElement('input'),
+                currencyInput_2 = document.createElement('input'),
+                input_1 = document.createElement('input');
+
+            let focusCalledBy = false;
+            input_1.focus = function () {
+                focusCalledBy = 'input_1';
+            };
+            currencyInput_1.focus = function () {
+                focusCalledBy = 'currencyInput_1';
+            };
+            currencyInput_2.focus = function () {
+                focusCalledBy = 'currencyInput_2';
+            };
+
+            //WHEN
+            let e = {keyCode: 13, target: {classList: ['cur', '1']}};
+            onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_2])
+
+            //THEN
+            assert.equal('currencyInput_2', focusCalledBy)
+
+        });
+
+        QUnit.test('currencyOnKeyUp test. Pass enter key on last currency input', assert => {
+
+            //GIVEN
+            let currencyInput_1 = document.createElement('input'),
+                currencyInput_2 = document.createElement('input'),
+                input_1 = document.createElement('input');
+
+            let focusCalledBy = false;
+            input_1.focus = function () {
+                focusCalledBy = 'input_1';
+            };
+            currencyInput_1.focus = function () {
+                focusCalledBy = 'currencyInput_1';
+            };
+            currencyInput_2.focus = function () {
+                focusCalledBy = 'currencyInput_2';
+            };
+
+            //WHEN
+            let e = {keyCode: 13, target: {classList: ['cur', '2']}};
+            onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_2])
+
+            //THEN
+            assert.equal('input_1', focusCalledBy)
+
+        });
     });
 
 </script>

@@ -178,6 +178,24 @@ const toggleGuide = function (e) {
     document.getElementById('guide').classList.toggle("hidden");
 };
 
+const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
+
+    let isNotEnterPress = ENTER_KEY !== e.keyCode;
+
+    if (isNotEnterPress) {
+        return;
+    }
+
+    let position = +e.target.classList[NUMBER_POSITION];
+
+    if (2 === position) {
+        numberInputs[0].focus();
+    } else {
+        //pos - 1 is array defenition of position. So 1 is next
+        currencyInputs[position].focus();
+    }
+};
+
 //todo cute guide
 //todo parse url to share/share button
 window.onload = function () {
@@ -193,28 +211,14 @@ window.onload = function () {
     let currencyInputs = document.getElementsByClassName('cur');
     Array.from(currencyInputs).forEach(input => {
         input.value = null;
-        input.addEventListener("keyup", function (e) {
-            let isNotEnterPress = ENTER_KEY !== e.keyCode;
-
-            if (isNotEnterPress) {
-                return;
-            }
-
-            let position = +e.target.classList[NUMBER_POSITION];
-
-            if (2 === position) {
-                inputs[0].focus();
-            } else {
-                //pos - 1 is array defenition of position. So 1 is next
-                currencyInputs[position].focus();
-            }
-
-        });
+        input.addEventListener("keyup", e => onCurrencyKeyup(e, inputs, currencyInputs));
     });
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
 
-    questionMark.addEventListener("click", toggleGuide)
+    if (questionMark) {
+        questionMark.addEventListener("click", toggleGuide);
+    }
 
 }
 
