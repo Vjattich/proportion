@@ -41,11 +41,15 @@
     QUnit.module('page', () => {
 
         QUnit.test('proportion case 1', assert => {
-            assert.equal(proportion(21894, 3000000, 11451.73), 5735552.62);
+            assert.equal(proportion(21894, 3000000, 11451.73), 5735552.61956);
         });
 
         QUnit.test('proportion case 2', assert => {
             assert.equal(proportion(7776.56, 2000000, 8000000), 1944.14);
+        });
+
+        QUnit.test('proportion case 3', assert => {
+            assert.equal(proportion(2, 3, 1), 6);
         });
 
         QUnit.test('isAllFilled test', assert => {

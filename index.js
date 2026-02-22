@@ -1,4 +1,3 @@
-const ENTER_KEY = 13;
 const LEFT_KEY = 37;
 const UP_KEY = 38;
 const RIGHT_KEY = 39;
@@ -14,7 +13,7 @@ let inputsPrevVal = {}
 
 const proportion = function (a, b, c) {
     const num_a = Big(a), num_b = Big(b), num_c = Big(c);
-    return num_a.mul(num_b).div(num_c).round(2);
+    return num_a.mul(num_b).div(num_c).round(5).toNumber();
 };
 
 const hasOneUnknown = function (elements) {
@@ -28,8 +27,8 @@ const hasOneUnknown = function (elements) {
 const onKeyUp = function (e) {
 
     let position = e.getPosition(),
-        isEnterPress = ENTER_KEY === e.keyCode,
-        isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" || e.key === 'Backspace';
+        isEnterPress = e.isEnterPress(),
+        isBackspacePress = e.isBackspacePress();
 
     if (false === isEnterPress && false === isBackspacePress) {
         inputsPrevVal[position] = e.target.value;
@@ -185,9 +184,7 @@ const toggleGuide = function (e) {
 
 const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
 
-    let isNotEnterPress = ENTER_KEY !== e.keyCode;
-
-    if (isNotEnterPress) {
+    if (false === e.isEnterPress()) {
         return;
     }
 
@@ -196,12 +193,12 @@ const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
     if (2 === position) {
         numberInputs[0].focus();
     } else {
-        //pos - 1 is array defenition of position. So 1 is next
+        //pos - 1 is array definition of position. So 1 is next
         currencyInputs[position].focus();
     }
 };
 
-
+const ENTER_KEY = 13;
 const NUMBER_POSITION = 1;
 const defineMethods = function () {
 
@@ -221,6 +218,23 @@ const defineMethods = function () {
         enumerable: false,
         configurable: true
     });
+
+    Object.defineProperty(Event.prototype, 'isEnterPress', {
+        value: function () {
+            return ENTER_KEY === this.keyCode
+        },
+        enumerable: false,
+        configurable: true
+    });
+
+    Object.defineProperty(Event.prototype, 'isBackspacePress', {
+        value: function () {
+            return this.inputType === 'deleteContentBackward' || this.code === "Backspace" || this.key === 'Backspace'
+        },
+        enumerable: false,
+        configurable: true
+    });
+
     Object.defineProperty(HTMLInputElement.prototype, 'getPosition', {
         value: getPosition,
         enumerable: false,
