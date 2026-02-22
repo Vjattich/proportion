@@ -12,14 +12,44 @@
 </body>
 <script>
 
+    const createEvent = function (param) {
+
+        const e = Object.create(Event.prototype);
+
+        Object.defineProperty(e, 'target', {
+            value: {classList: param.classList, tagName: param.tagName, value: param.value},
+            writable: true,
+            enumerable: true,
+            configurable: true
+        });
+
+        Object.defineProperty(e, 'keyCode', {
+            value: param.keyCode,
+            writable: true,
+            enumerable: true
+        });
+
+        Object.defineProperty(e, 'key', {
+            value: param.key,
+            writable: true,
+            enumerable: true
+        });
+
+        return e;
+    }
+
     QUnit.module('page', () => {
 
         QUnit.test('proportion case 1', assert => {
-            assert.equal(proportion(21894, 3000000, 11451.73), 5735552.62);
+            assert.equal(proportion(21894, 3000000, 11451.73), 5735552.61956);
         });
 
         QUnit.test('proportion case 2', assert => {
             assert.equal(proportion(7776.56, 2000000, 8000000), 1944.14);
+        });
+
+        QUnit.test('proportion case 3', assert => {
+            assert.equal(proportion(2, 3, 1), 6);
         });
 
         QUnit.test('isAllFilled test', assert => {
@@ -49,36 +79,7 @@
             assert.equal(result6, true);
         });
 
-        QUnit.test('toElement test', assert => {
-
-            //GIVEN
-            let input_1 = document.createElement('input'),
-                input_2 = document.createElement('input'),
-                input_3 = document.createElement('input');
-
-            input_1.classList.add('input', '1');
-            input_1.value = '1'
-            input_2.classList.add('input', '2');
-            input_2.value = null;
-            input_3.classList.add('input', '3');
-            input_3.value = undefined;
-
-            //WHEN
-            let toElement1 = toElement([input_1, input_2, input_3]);
-
-            //THEN
-            assert.deepEqual(
-                toElement1,
-                {
-                    '1': {self: input_1, value: '1', pos: '1'},
-                    '2': {self: input_2, value: '', pos: '2'},
-                    '3': {self: input_3, value: 'undefined', pos: '3'}
-                }
-            );
-        });
-
         QUnit.test('currencyOnKeyUp test. Pass NOT enter key', assert => {
-
             //GIVEN
             let currencyInput_1 = document.createElement('input'),
                 currencyInput_2 = document.createElement('input'),
@@ -95,8 +96,21 @@
                 focusCalledBy = 'currencyInput_2';
             };
 
+            const e = Object.create(Event.prototype);
+            Object.defineProperty(e, 'target', {
+                value: { classList: ['cur', '1'] },
+                writable: true,
+                enumerable: true,
+                configurable: true
+            });
+
+            Object.defineProperty(e, 'keyCode', {
+                value: 1,
+                writable: true,
+                enumerable: true
+            });
+
             //WHEN
-            let e = {keyCode: 1, target: {classList: ['cur', '1']}};
             onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_1])
 
             //THEN
@@ -104,8 +118,8 @@
         });
 
         QUnit.test('currencyOnKeyUp test. Pass enter key', assert => {
-
             //GIVEN
+
             let currencyInput_1 = document.createElement('input'),
                 currencyInput_2 = document.createElement('input'),
                 input_1 = document.createElement('input');
@@ -121,8 +135,9 @@
                 focusCalledBy = 'currencyInput_2';
             };
 
+            const e = createEvent({tagName: 'INPUT', classList: ['cur', '1'], keyCode: 13});
+
             //WHEN
-            let e = {keyCode: 13, target: {classList: ['cur', '1']}};
             onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_2])
 
             //THEN
@@ -148,8 +163,9 @@
                 focusCalledBy = 'currencyInput_2';
             };
 
+            const e = createEvent({tagName: 'INPUT', classList: ['cur', '2'], keyCode: 13});
+
             //WHEN
-            let e = {keyCode: 13, target: {classList: ['cur', '2']}};
             onCurrencyKeyup(e, [input_1], [currencyInput_1, currencyInput_2])
 
             //THEN
@@ -164,7 +180,7 @@
             let input_1 = document.createElement('input');
 
             //WHEN
-            onInput.bind(input_1, {keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.call(input_1, {keyCode: 1, target: {classList: ['input', '1']}});
 
             //THEN
             assert.equal(input_1.value, '')
@@ -185,10 +201,10 @@
             input_4.value = '2r'
 
             //WHEN
-            onInput.bind(input_1, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
-            onInput.bind(input_2, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
-            onInput.bind(input_3, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
-            onInput.bind(input_4, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.call(input_1, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}});
+            onInput.call(input_2, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}});
+            onInput.call(input_3, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}});
+            onInput.call(input_4, {data: 'r', keyCode: 1, target: {classList: ['input', '1']}});
 
             //THEN
             assert.equal(input_1.value, '123.33')
@@ -212,10 +228,10 @@
             input_4.value = '50.5';
 
             //WHEN
-            onInput.bind(input_1, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
-            onInput.bind(input_2, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
-            onInput.bind(input_3, {data: '3', keyCode: 1, target: {classList: ['input', '1']}})();
-            onInput.bind(input_4, {data: '5', keyCode: 1, target: {classList: ['input', '1']}})();
+            onInput.call(input_1, {data: '3', keyCode: 1, target: {classList: ['input', '1']}});
+            onInput.call(input_2, {data: '3', keyCode: 1, target: {classList: ['input', '1']}});
+            onInput.call(input_3, {data: '3', keyCode: 1, target: {classList: ['input', '1']}});
+            onInput.call(input_4, {data: '5', keyCode: 1, target: {classList: ['input', '1']}});
 
             //THEN
             assert.equal(input_1.value, "123,123");
@@ -247,8 +263,10 @@
             input_3.value = '3.3';
             input_4.value = '50.5';
 
+            const e = createEvent({key: 'Backspace', tagName: 'INPUT', classList: input_1.classList})
+
             //WHEN
-            onInput.bind(input_1, {key: 'Backspace', keyCode: 1, target: {classList: input_1.classList}})();
+            onInput.call(input_1, e);
 
             //THEN
             assert.equal(input_1.value, '123,123');
@@ -281,8 +299,10 @@
             input_3.value = '3.3';
             input_4.value = '50.5';
 
+            const e = createEvent({key: 'Backspace', tagName: 'INPUT', classList: input_4.classList})
+
             //WHEN
-            onInput.bind(input_4, {key: 'Backspace', keyCode: 1, target: {classList: input_4.classList}})();
+            onInput.call(input_4, e);
 
             //THEN
             assert.equal(input_1.value, '123,123');
@@ -314,8 +334,10 @@
             input_3.value = '3.3';
             input_4.value = null;
 
+            const e = createEvent({key: '3', tagName: 'INPUT', classList: input_3.classList, value: input_3.value})
+
             //WHEN
-            onKeyUp.bind(input_3, {key: '3', keyCode: 1, target: {value: input_3.value, classList: input_3.classList}})();
+            onKeyUp.call(input_3, e);
 
             //THEN
             assert.deepEqual(inputsPrevVal, {'3': '3.3'});
@@ -361,8 +383,10 @@
                 input_focus = 'input_4';
             };
 
+            const e = createEvent({key: 'Backspace', tagName: 'INPUT', classList: input_4.classList, value: input_4.value})
+
             //WHEN
-            onKeyUp.bind(input_4, {key: 'Backspace', keyCode: 1, target: {value: input_4.value, classList: input_4.classList}})();
+            onKeyUp.call(input_4, e);
 
             //THEN
             assert.deepEqual(inputsPrevVal, {});
@@ -410,8 +434,10 @@
                 input_focus = 'input_4';
             };
 
+            const e = createEvent({key: 'Backspace', tagName: 'INPUT', classList: input_1.classList, value: input_1.value})
+
             //WHEN
-            onKeyUp.bind(input_1, {key: 'Backspace', keyCode: 1, target: {value: input_1.value, classList: input_1.classList}})();
+            onKeyUp.call(input_1, e);
 
             //THEN
             assert.deepEqual(inputsPrevVal, {});
@@ -459,8 +485,10 @@
                 input_focus = 'input_4';
             };
 
+            const e = createEvent({key: 'Enter', keyCode: 13, tagName: 'INPUT', classList: input_1.classList, value: input_1.value})
+
             //WHEN
-            onKeyUp.bind(input_1, {key: 'Enter', keyCode: 13, target: {value: input_1.value, classList: input_1.classList}})();
+            onKeyUp.call(input_1, e);
 
             //THEN
             assert.deepEqual(inputsPrevVal, {});
@@ -507,8 +535,10 @@
                 input_focus = 'input_4';
             };
 
+            const e = createEvent({key: 'Enter', keyCode: 13, tagName: 'INPUT', classList: input_3.classList, value: input_3.value})
+
             //WHEN
-            onKeyUp.bind(input_3, {key: 'Enter', keyCode: 13, target: {value: input_3.value, classList: input_3.classList}})();
+            onKeyUp.call(input_3, e);
 
             //THEN
             assert.deepEqual(inputsPrevVal, {});

@@ -1,10 +1,9 @@
-const ENTER_KEY = 13;
 const LEFT_KEY = 37;
 const UP_KEY = 38;
 const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
-const NUMBER_POSITION = 1;
+const INPUT_TAG_NAME = 'INPUT';
 const FIRST_INPUT_POSITION = 1;
 const INPUT_COUNT = 4;
 const LAST_INPUT_POSITION = 4;
@@ -14,7 +13,7 @@ let inputsPrevVal = {}
 
 const proportion = function (a, b, c) {
     const num_a = Big(a), num_b = Big(b), num_c = Big(c);
-    return num_a.mul(num_b).div(num_c).round(2);
+    return num_a.mul(num_b).div(num_c).round(5).toNumber();
 };
 
 const hasOneUnknown = function (elements) {
@@ -25,20 +24,11 @@ const hasOneUnknown = function (elements) {
     return filtered.length === 3;
 }
 
-const toElement = function (elements) {
-    return elements
-        .map(e => ({value: e.value, pos: e.classList[NUMBER_POSITION], self: e}))
-        .reduce((acc, e) => {
-            acc[e.pos] = e;
-            return acc;
-        }, {});
-};
-
 const onKeyUp = function (e) {
 
-    let position = +e.target.classList[NUMBER_POSITION],
-        isEnterPress = ENTER_KEY === e.keyCode,
-        isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" || e.key === 'Backspace';
+    let position = e.getPosition(),
+        isEnterPress = e.isEnterPress(),
+        isBackspacePress = e.isBackspacePress();
 
     if (false === isEnterPress && false === isBackspacePress) {
         inputsPrevVal[position] = e.target.value;
@@ -79,22 +69,22 @@ const onKeyUp = function (e) {
         }
 
         if (isEnterPress) {
-            let values = toElement(inputs),
-                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-                unknownInput = values[parseInt(emptyPos)],
+
+            let emptyPos = Object.values(inputs).filter(input => !input.value)[0].getPosition()
+                unknownInput = inputs[emptyPos - 1],
                 argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-                argPositionElement = argPosition[emptyPos],
+                argPositionElement = argPosition[emptyPos ],
                 args = argPositionElement.map(index => {
 
-                    let inputValue = values[index].value,
+                    let inputValue = inputs[index - 1].value,
                         numberStringValue = inputValue.replace(/,/g, '');
 
                     return parseFloat(numberStringValue);
                 });
 
             isByAction = true;
-            unknownInput.self.value = toCurrency(proportion.apply(null, args));
-            unknownInput.self.dispatchEvent(new Event('input'));
+            unknownInput.value = toCurrency(proportion.apply(null, args));
+            unknownInput.dispatchEvent(new Event('input'));
             isByAction = false;
         }
 
@@ -157,7 +147,7 @@ const cleanInputIfNeeded = function (e) {
     }
 
     //if current filled input is the last one we will clean the third. If its any other we will clean the last
-    let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
+    let isForth = LAST_INPUT_POSITION === e.getPosition();
     inputs[isForth ? 2 : 3].value = null;
 }
 
@@ -194,25 +184,69 @@ const toggleGuide = function (e) {
 
 const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
 
-    let isNotEnterPress = ENTER_KEY !== e.keyCode;
-
-    if (isNotEnterPress) {
+    if (false === e.isEnterPress()) {
         return;
     }
 
-    let position = +e.target.classList[NUMBER_POSITION];
+    let position = e.getPosition();
 
     if (2 === position) {
         numberInputs[0].focus();
     } else {
-        //pos - 1 is array defenition of position. So 1 is next
+        //pos - 1 is array definition of position. So 1 is next
         currencyInputs[position].focus();
     }
 };
 
+const ENTER_KEY = 13;
+const NUMBER_POSITION = 1;
+const defineMethods = function () {
+
+    const getPosition = function () {
+
+        let s = this.target ? this.target : this;
+
+        if (INPUT_TAG_NAME !== s.tagName) {
+            return null;
+        }
+
+        return +s.classList[NUMBER_POSITION];
+    };
+
+    Object.defineProperty(Event.prototype, 'getPosition', {
+        value: getPosition,
+        enumerable: false,
+        configurable: true
+    });
+
+    Object.defineProperty(Event.prototype, 'isEnterPress', {
+        value: function () {
+            return this.key === 'Enter' || this.keyCode === 13;
+        },
+        enumerable: false,
+        configurable: true
+    });
+
+    Object.defineProperty(Event.prototype, 'isBackspacePress', {
+        value: function () {
+            return this.inputType === 'deleteContentBackward' || this.code === "Backspace" || this.key === 'Backspace'
+        },
+        enumerable: false,
+        configurable: true
+    });
+
+    Object.defineProperty(HTMLInputElement.prototype, 'getPosition', {
+        value: getPosition,
+        enumerable: false,
+        configurable: true
+    });
+}
+
 //todo cute guide
 //todo parse url to share/share button
 window.onload = function () {
+
+    defineMethods();
 
     let inputs = Array.from(document.getElementsByClassName('input'));
 
