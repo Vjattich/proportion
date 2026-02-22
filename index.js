@@ -221,7 +221,7 @@ const defineMethods = function () {
 
     Object.defineProperty(Event.prototype, 'isEnterPress', {
         value: function () {
-            return ENTER_KEY === this.keyCode
+            return this.key === 'Enter' || this.keyCode === 13;
         },
         enumerable: false,
         configurable: true
@@ -246,6 +246,8 @@ const defineMethods = function () {
 //todo parse url to share/share button
 window.onload = function () {
 
+    defineMethods();
+
     let inputs = Array.from(document.getElementsByClassName('input'));
 
     inputs.forEach(input => {
@@ -266,6 +268,5 @@ window.onload = function () {
         questionMark.addEventListener("click", toggleGuide);
     }
 
-    defineMethods();
 }
 
