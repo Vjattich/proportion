@@ -4,7 +4,7 @@ const UP_KEY = 38;
 const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
-const NUMBER_POSITION = 1;
+const INPUT_TAG_NAME = 'INPUT';
 const FIRST_INPUT_POSITION = 1;
 const INPUT_COUNT = 4;
 const LAST_INPUT_POSITION = 4;
@@ -25,18 +25,9 @@ const hasOneUnknown = function (elements) {
     return filtered.length === 3;
 }
 
-const toElement = function (elements) {
-    return elements
-        .map(e => ({value: e.value, pos: e.classList[NUMBER_POSITION], self: e}))
-        .reduce((acc, e) => {
-            acc[e.pos] = e;
-            return acc;
-        }, {});
-};
-
 const onKeyUp = function (e) {
 
-    let position = +e.target.classList[NUMBER_POSITION],
+    let position = e.getPosition(),
         isEnterPress = ENTER_KEY === e.keyCode,
         isBackspacePress = e.inputType === 'deleteContentBackward' || e.code === "Backspace" || e.key === 'Backspace';
 
@@ -79,22 +70,22 @@ const onKeyUp = function (e) {
         }
 
         if (isEnterPress) {
-            let values = toElement(inputs),
-                emptyPos = Object.values(values).filter(e => !e.value)[0].pos,
-                unknownInput = values[parseInt(emptyPos)],
+
+            let emptyPos = Object.values(inputs).filter(input => !input.value)[0].getPosition()
+                unknownInput = inputs[emptyPos - 1],
                 argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-                argPositionElement = argPosition[emptyPos],
+                argPositionElement = argPosition[emptyPos ],
                 args = argPositionElement.map(index => {
 
-                    let inputValue = values[index].value,
+                    let inputValue = inputs[index - 1].value,
                         numberStringValue = inputValue.replace(/,/g, '');
 
                     return parseFloat(numberStringValue);
                 });
 
             isByAction = true;
-            unknownInput.self.value = toCurrency(proportion.apply(null, args));
-            unknownInput.self.dispatchEvent(new Event('input'));
+            unknownInput.value = toCurrency(proportion.apply(null, args));
+            unknownInput.dispatchEvent(new Event('input'));
             isByAction = false;
         }
 
@@ -157,7 +148,7 @@ const cleanInputIfNeeded = function (e) {
     }
 
     //if current filled input is the last one we will clean the third. If its any other we will clean the last
-    let isForth = LAST_INPUT_POSITION === +e.target.classList[NUMBER_POSITION];
+    let isForth = LAST_INPUT_POSITION === e.getPosition();
     inputs[isForth ? 2 : 3].value = null;
 }
 
@@ -200,7 +191,7 @@ const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
         return;
     }
 
-    let position = +e.target.classList[NUMBER_POSITION];
+    let position = e.getPosition();
 
     if (2 === position) {
         numberInputs[0].focus();
@@ -209,6 +200,33 @@ const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
         currencyInputs[position].focus();
     }
 };
+
+
+const NUMBER_POSITION = 1;
+const defineMethods = function () {
+
+    const getPosition = function () {
+
+        let s = this.target ? this.target : this;
+
+        if (INPUT_TAG_NAME !== s.tagName) {
+            return null;
+        }
+
+        return +s.classList[NUMBER_POSITION];
+    };
+
+    Object.defineProperty(Event.prototype, 'getPosition', {
+        value: getPosition,
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(HTMLInputElement.prototype, 'getPosition', {
+        value: getPosition,
+        enumerable: false,
+        configurable: true
+    });
+}
 
 //todo cute guide
 //todo parse url to share/share button
@@ -234,5 +252,6 @@ window.onload = function () {
         questionMark.addEventListener("click", toggleGuide);
     }
 
+    defineMethods();
 }
 
