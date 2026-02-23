@@ -31,37 +31,51 @@ const onKeyUp = function (e) {
         isBackspacePress = e.isBackspacePress();
 
     if (false === isEnterPress && false === isBackspacePress) {
+        console.log('debug, isNotEnterPress + isNotBackspacePress')
         inputsPrevVal[position] = e.target.value;
         return;
     }
 
     try {
 
+        console.log('debug, inside try')
+
         let inputs = Array.from(document.getElementsByClassName('input'));
 
         if (!e.target.value && isBackspacePress) {
+
+            console.log('debug, empty value + isBackspacePress')
 
             let prevPosition = position - 2,
                 inputsPrevValElement = inputsPrevVal[position];
 
             //if backspace was pressed to delete everything, it should stop on first input
             if (FIRST_INPUT_POSITION === position) {
+                console.log('debug, isBackspacePress + is first position')
                 return;
             }
 
             //if we do not save state backspace after cleaning all input jump to previous one to fast. Maybe user delete from current to fill it again
             //so we save a state. If its empty it means user want to delete more
             if (inputsPrevValElement) {
+                console.log('debug, isBackspacePress + clean state')
                 inputsPrevVal[position] = null;
                 return;
             }
+
+            console.log('debug, isBackspacePress + prev field focus')
 
             inputs[prevPosition].focus();
             return;
         }
 
         if (hasOneUnknown(inputs) === false) {
+            console.log('debug, isEnterPress + next field focus 1')
+
             if (isEnterPress) {
+
+                console.log('debug, isEnterPress + next field focus 2')
+
                 let nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
                 inputs[nextPosition].focus();
                 return;
@@ -70,7 +84,9 @@ const onKeyUp = function (e) {
 
         if (isEnterPress) {
 
-            let emptyPos = Object.values(inputs).filter(input => !input.value)[0].getPosition()
+            console.log('debug, isEnterPress 1')
+
+            let emptyPos = Object.values(inputs).filter(input => !input.value)[0].getPosition(),
                 unknownInput = inputs[emptyPos - 1],
                 argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
                 argPositionElement = argPosition[emptyPos ],
@@ -82,13 +98,18 @@ const onKeyUp = function (e) {
                     return parseFloat(numberStringValue);
                 });
 
+
+            console.log('debug, isEnterPress set val')
+
             isByAction = true;
             unknownInput.value = toCurrency(proportion.apply(null, args));
             unknownInput.dispatchEvent(new Event('input'));
             isByAction = false;
         }
 
-    } catch (Error) {
+    } catch (e) {
+
+        console.log('debug, isEnterPress error' + e)
 
         let error = document.getElementById('tooltip-error');
 
