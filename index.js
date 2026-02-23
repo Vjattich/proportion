@@ -264,6 +264,14 @@ const defineMethods = function () {
     });
 }
 
+const isIPhoneBrowser = function () {
+
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Check for "iPhone", "iPod", or "iPad" in the user agent string
+    return /iPhone|iPod|iPad/i.test(userAgent);
+}
+
 //todo cute guide
 //todo parse url to share/share button
 window.onload = function () {
@@ -276,6 +284,9 @@ window.onload = function () {
         input.value = null;
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
+        if (isIPhoneBrowser()) {
+            input.addEventListener("focusout", onKeyUp)
+        }
     })
 
     let currencyInputs = document.getElementsByClassName('cur');
