@@ -244,6 +244,13 @@ const defineMethods = function () {
 }
 
 
+const makeShareLink = function (e) {
+    const promise = navigator.clipboard.writeText('123');
+    return promise.then(e => {
+        console.log(e)
+    });
+}
+
 //todo cute guide
 //todo parse url to share/share button
 window.onload = function () {
@@ -254,22 +261,37 @@ window.onload = function () {
 
     inputs.forEach(input => {
         input.value = null;
-        input.addEventListener("input", onInput)
-        input.addEventListener("keyup", onKeyUp)
+        input.addEventListener('input', onInput)
+        input.addEventListener('keyup', onKeyUp)
     })
 
     let currencyInputs = document.getElementsByClassName('cur');
     Array.from(currencyInputs).forEach(input => {
         input.value = null;
-        input.addEventListener("keyup", e => onCurrencyKeyup(e, inputs, currencyInputs));
+        input.addEventListener('keyup', e => onCurrencyKeyup(e, inputs, currencyInputs));
     });
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
-
     if (questionMark) {
-        questionMark.addEventListener("click", toggleGuide);
+        questionMark.addEventListener('click', toggleGuide);
     }
 
+    let share = document.getElementsByClassName('share')[0];
+
+    if (share) {
+        const release = () => share.classList.remove('pressed');
+        const press = () => share.classList.add('pressed');
+
+        share.addEventListener('mousedown', press);
+        share.addEventListener('mouseup', release);
+        share.addEventListener('mouseleave', release);
+        share.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            press();
+        });
+        share.addEventListener('touchend', release);
+        share.addEventListener('click', makeShareLink)
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
