@@ -3,7 +3,6 @@ const UP_KEY = 38;
 const RIGHT_KEY = 39;
 const DOWN_KEY = 40;
 
-const INPUT_TAG_NAME = 'INPUT';
 const FIRST_INPUT_POSITION = 1;
 const INPUT_COUNT = 4;
 const LAST_INPUT_POSITION = 4;
@@ -31,52 +30,37 @@ const onKeyUp = function (e) {
         isBackspacePress = e.isBackspacePress();
 
     if (false === isEnterPress && false === isBackspacePress) {
-        console.log('debug, isNotEnterPress + isNotBackspacePress', e)
-        console.log('debug, isNotEnterPress + isNotBackspacePress', e.key, e.code, e.inputType)
         inputsPrevVal[position] = e.target.value;
         return;
     }
 
     try {
 
-        console.log('debug, inside try')
-
         let inputs = Array.from(document.getElementsByClassName('input'));
 
         if (!e.target.value && isBackspacePress) {
-
-            console.log('debug, empty value + isBackspacePress')
 
             let prevPosition = position - 2,
                 inputsPrevValElement = inputsPrevVal[position];
 
             //if backspace was pressed to delete everything, it should stop on first input
             if (FIRST_INPUT_POSITION === position) {
-                console.log('debug, isBackspacePress + is first position')
                 return;
             }
 
             //if we do not save state backspace after cleaning all input jump to previous one to fast. Maybe user delete from current to fill it again
             //so we save a state. If its empty it means user want to delete more
             if (inputsPrevValElement) {
-                console.log('debug, isBackspacePress + clean state')
                 inputsPrevVal[position] = null;
                 return;
             }
-
-            console.log('debug, isBackspacePress + prev field focus')
 
             inputs[prevPosition].focus();
             return;
         }
 
         if (hasOneUnknown(inputs) === false) {
-            console.log('debug, isEnterPress + next field focus 1')
-
             if (isEnterPress) {
-
-                console.log('debug, isEnterPress + next field focus 2')
-
                 let nextPosition = LAST_INPUT_POSITION === position ? 0 : position;
                 inputs[nextPosition].focus();
                 return;
@@ -84,8 +68,6 @@ const onKeyUp = function (e) {
         }
 
         if (isEnterPress) {
-
-            console.log('debug, isEnterPress 1')
 
             let emptyPos = Object.values(inputs).filter(input => !input.value)[0].getPosition(),
                 unknownInput = inputs[emptyPos - 1],
@@ -100,8 +82,6 @@ const onKeyUp = function (e) {
                 });
 
 
-            console.log('debug, isEnterPress set val')
-
             isByAction = true;
             unknownInput.value = toCurrency(proportion.apply(null, args));
             unknownInput.dispatchEvent(new Event('input'));
@@ -109,8 +89,6 @@ const onKeyUp = function (e) {
         }
 
     } catch (e) {
-
-        console.log('debug, isEnterPress error' + e)
 
         let error = document.getElementById('tooltip-error');
 
@@ -220,6 +198,7 @@ const onCurrencyKeyup = function (e, numberInputs, currencyInputs) {
     }
 };
 
+const INPUT_TAG_NAME = 'INPUT';
 const ENTER_KEY = 13;
 const NUMBER_POSITION = 1;
 const defineMethods = function () {
@@ -243,7 +222,7 @@ const defineMethods = function () {
 
     Object.defineProperty(Event.prototype, 'isEnterPress', {
         value: function () {
-            return this.key === 'Enter' || this.keyCode === 13;
+            return 'Enter' === this.key || ENTER_KEY === this.keyCode;
         },
         enumerable: false,
         configurable: true
@@ -293,17 +272,18 @@ window.onload = function () {
 
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    // Check if the device is an iPhone, iPod, or iPad
+document.addEventListener('DOMContentLoaded', function() {
+    //this app works only with numbers, so its logical to allow number keyboard
+    //but on "magical apple" devices the number keyboard DO NOT have an enter key
+    //So, do switch it to text inputs on I-something.
+    //Maybe the reason behind it its do not to do a submit and we clean one button. But in general its became even worse, its still have something like submit button, but its does not enter anymore. And in cases like mine UI should add one more button to initiate a submit...
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     if (!isIOS) {
-        // Target your specific inputs
-        const numericInputs = Array.from(document.getElementsByClassName('input'));
-
-        numericInputs.forEach(input => {
-            input.setAttribute('inputmode', 'decimal');
-        });
+        return;
     }
+
+    const inputs = Array.from(document.getElementsByClassName('input'));
+    inputs.forEach(input => input.setAttribute('inputmode', 'text'));
 });
