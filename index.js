@@ -31,7 +31,8 @@ const onKeyUp = function (e) {
         isBackspacePress = e.isBackspacePress();
 
     if (false === isEnterPress && false === isBackspacePress) {
-        console.log('debug, isNotEnterPress + isNotBackspacePress')
+        console.log('debug, isNotEnterPress + isNotBackspacePress', e)
+        console.log('debug, isNotEnterPress + isNotBackspacePress', e.key, e.code, e.inputType)
         inputsPrevVal[position] = e.target.value;
         return;
     }
