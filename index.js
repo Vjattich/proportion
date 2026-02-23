@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    if (isIOS) {
+    if (!isIOS) {
         // Target your specific inputs
         const numericInputs = Array.from(document.getElementsByClassName('input'));
 
