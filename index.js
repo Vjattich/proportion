@@ -264,13 +264,6 @@ const defineMethods = function () {
     });
 }
 
-const isIPhoneBrowser = function () {
-
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-    // Check for "iPhone", "iPod", or "iPad" in the user agent string
-    return /iPhone|iPod|iPad/i.test(userAgent);
-}
 
 //todo cute guide
 //todo parse url to share/share button
@@ -284,9 +277,6 @@ window.onload = function () {
         input.value = null;
         input.addEventListener("input", onInput)
         input.addEventListener("keyup", onKeyUp)
-        if (isIPhoneBrowser()) {
-            input.addEventListener("focusout", onKeyUp)
-        }
     })
 
     let currencyInputs = document.getElementsByClassName('cur');
@@ -303,3 +293,17 @@ window.onload = function () {
 
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    // Check if the device is an iPhone, iPod, or iPad
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isIOS) {
+        // Target your specific inputs
+        const numericInputs = Array.from(document.getElementsByClassName('input'));
+
+        numericInputs.forEach(input => {
+            input.setAttribute('inputmode', 'decimal');
+        });
+    }
+});
