@@ -72,7 +72,7 @@ const onKeyUp = function (e) {
             let emptyPos = Object.values(inputs).filter(input => !input.value)[0].getPosition(),
                 unknownInput = inputs[emptyPos - 1],
                 argPosition = {'1': [2, 3, 4], '2': [1, 4, 3], '3': [1, 4, 2], '4': [2, 3, 1]},
-                argPositionElement = argPosition[emptyPos ],
+                argPositionElement = argPosition[emptyPos],
                 args = argPositionElement.map(index => {
 
                     let inputValue = inputs[index - 1].value,
@@ -243,32 +243,47 @@ const defineMethods = function () {
     });
 }
 
-
 const makeShareLink = function (e) {
-    const promise = navigator.clipboard.writeText('123');
+
+    const queryCur = Array.from(document.getElementsByClassName('cur'))
+        .map((s, index) => `${index === 0 ? 'cur1' : 'cur2'}=${s.value}`)
+        .join('&');
+
+    const queryVal = Array.from(document.getElementsByClassName('input'))
+        .map((s, index) => `&${index + 1}=${s.value}`)
+        .join('');
+
+    const query = getURL() + '?' + queryCur + queryVal;
+
+    const promise = navigator.clipboard.writeText(query);
     return promise.then(e => {
-        console.log(e)
+        console.log(query)
     });
 }
 
+const getURL = function () {
+    return window.location.protocol + "//" + window.location.host + window.location.pathname;
+};
+
 //todo cute guide
-//todo parse url to share/share button
 window.onload = function () {
 
     defineMethods();
 
+    const params = new URLSearchParams(window.location.search);
+
     let inputs = Array.from(document.getElementsByClassName('input'));
 
-    inputs.forEach(input => {
-        input.value = null;
+    inputs.forEach((input, index) => {
+        input.value = toCurrency(params.get(index + 1));
         input.addEventListener('input', onInput)
         input.addEventListener('keyup', onKeyUp)
     })
 
-    let currencyInputs = document.getElementsByClassName('cur');
-    Array.from(currencyInputs).forEach(input => {
-        input.value = null;
-        input.addEventListener('keyup', e => onCurrencyKeyup(e, inputs, currencyInputs));
+    let currencyInputs = Array.from(document.getElementsByClassName('cur'));
+    currencyInputs.forEach((currency, index) => {
+        currency.value = params.get('cur' + (index + 1));
+        currency.addEventListener('keyup', e => onCurrencyKeyup(e, inputs, currencyInputs));
     });
 
     let questionMark = document.getElementsByClassName('question-mark')[0];
@@ -292,9 +307,12 @@ window.onload = function () {
         share.addEventListener('touchend', release);
         share.addEventListener('click', makeShareLink)
     }
+
+    const cleanUrl = getURL();
+    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     //this app works only with numbers, so its logical to allow number keyboard
     //but on "magical apple" devices the number keyboard DO NOT have an enter key
     //So, do switch it to text inputs on I-something.
