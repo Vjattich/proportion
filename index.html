@@ -23,6 +23,7 @@
             align-items: center;
         }
 
+
         footer {
             position: fixed;
             bottom: 1em;
@@ -35,6 +36,10 @@
             gap: 0.5em;
             padding: 0 1em;
             z-index: 10;
+        }
+
+        #main {
+            position: relative;
         }
 
         .input {
@@ -58,13 +63,30 @@
             margin: 0 3em 1em 3em
         }
 
-        .margin-top-15p {
-            margin-top: 15%
+        .margin-top-4p {
+            margin-top: 4%
         }
 
         .box40 {
             width: 40px;
             height: 40px;
+        }
+
+        .box30 {
+            width: 30px;
+            height: 30px;
+        }
+
+        .share {
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute;
+            right: 3em;
+            display: block;
+        }
+
+        .share.pressed {
+            transform: scale(0.85);
         }
 
         .center {
@@ -106,6 +128,10 @@
 
             #main {
                 margin: 0;
+            }
+
+            .margin-top-4p {
+                margin-top: -4em;
             }
 
             body {
@@ -170,26 +196,24 @@
     </style>
     <script src="index.js"></script>
     <script src="big.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
 </head>
 <body class="background-orange" style="zoom: 125%">
-<div class="center margin-top-15p font-size-20">
+<div class="center margin-top-4p font-size-20">
     <div id="main">
         <span id="tooltip-error" class="hidden">Can't process this number</span>
         <div>
-            <input class="cur 1" maxlength="5">
-            <input class="cur 2" maxlength="5">
+            <input class="cur 1" maxlength="5"><input class="cur 2" maxlength="5">
         </div>
         <div>
-            <input inputmode="decimal" class="input 1">
-            <input inputmode="decimal" class="input 2">
+            <input inputmode="decimal" class="input 1"><input inputmode="decimal" class="input 2">
         </div>
         <hr>
         <div>
-            <input inputmode="decimal" class="input 3">
-            <input inputmode="decimal" class="input 4">
+            <input inputmode="decimal" class="input 3"><input inputmode="decimal" class="input 4">
         </div>
+        <a class="box30 share">
+            <svg height="30px" width="30px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 458.624 458.624" xml:space="preserve"><g stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M339.588,314.529c-14.215,0-27.456,4.133-38.621,11.239l-112.682-78.67c1.809-6.315,2.798-12.976,2.798-19.871 c0-6.896-0.989-13.557-2.798-19.871l109.64-76.547c11.764,8.356,26.133,13.286,41.662,13.286c39.79,0,72.047-32.257,72.047-72.047 C411.634,32.258,379.378,0,339.588,0c-39.79,0-72.047,32.257-72.047,72.047c0,5.255,0.578,10.373,1.646,15.308l-112.424,78.491 c-10.974-6.759-23.892-10.666-37.727-10.666c-39.79,0-72.047,32.257-72.047,72.047s32.256,72.047,72.047,72.047 c13.834,0,26.753-3.907,37.727-10.666l113.292,79.097c-1.629,6.017-2.514,12.34-2.514,18.872c0,39.79,32.257,72.047,72.047,72.047 c39.79,0,72.047-32.257,72.047-72.047C411.635,346.787,379.378,314.529,339.588,314.529z"></path> </g> </g> </g></svg>
+        </a>
         <div id="guide" class="guide hidden">put values at any 3 cell and press enter; in unfilled cell will be answer of an equation</div>
     </div>
 </div>
