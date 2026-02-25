@@ -257,7 +257,21 @@ const makeShareLink = function (e) {
 
     const promise = navigator.clipboard.writeText(query);
     return promise.then(e => {
-        console.log(query)
+
+        const elementsByClassName = document.getElementsByClassName('copy-text')[0];
+
+        if (!elementsByClassName) {
+            return
+        }
+
+        const classList = elementsByClassName.classList;
+
+        if (!classList.contains('hidden')) {
+            return;
+        }
+
+        classList.toggle('hidden');
+        setTimeout(function () {classList.toggle('hidden')},1500);
     });
 }
 
@@ -298,14 +312,16 @@ window.onload = function () {
         const press = () => share.classList.add('pressed');
 
         share.addEventListener('mousedown', press);
-        share.addEventListener('mouseup', release);
+        share.addEventListener('mouseup', () => {
+            release()
+            makeShareLink()
+        });
         share.addEventListener('mouseleave', release);
         share.addEventListener('touchstart', (e) => {
             e.preventDefault();
             press();
         });
         share.addEventListener('touchend', release);
-        share.addEventListener('click', makeShareLink)
     }
 
     const cleanUrl = getURL();
