@@ -305,23 +305,19 @@ window.onload = function () {
         questionMark.addEventListener('click', toggleGuide);
     }
 
-    let share = document.getElementsByClassName('share')[0];
+    const shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
 
-    if (share) {
-        const release = () => share.classList.remove('pressed');
-        const press = () => share.classList.add('pressed');
+        const shareIcon = document.querySelector('.share');
+        const release = () => shareIcon.classList.remove('pressed');
+        const press = () => shareIcon.classList.add('pressed');
 
-        share.addEventListener('mousedown', press);
-        share.addEventListener('mouseup', () => {
-            release()
-            makeShareLink()
-        });
-        share.addEventListener('mouseleave', release);
-        share.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            press();
-        });
-        share.addEventListener('touchend', release);
+        shareBtn.addEventListener('mousedown', press);
+        shareBtn.addEventListener('mouseup', release);
+        shareBtn.addEventListener('mouseleave', release);
+        shareBtn.addEventListener('touchstart', press);
+        shareBtn.addEventListener('touchend', release);
+        shareBtn.addEventListener('click', makeShareLink);
     }
 
     const cleanUrl = getURL();
